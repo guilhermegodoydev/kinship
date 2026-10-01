@@ -4,6 +4,8 @@
  */
 package com.mycompany.kinship;
 import com.mycompany.kinship.ui.Tema;
+import com.mycompany.kinship.ui.BotaoArredondado;
+import com.mycompany.kinship.ui.PainelArredondado;
 /**
  *
  * @author gui
@@ -29,11 +31,11 @@ public class TelaLogin extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        jPanel2 = new PainelArredondado();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         txtEmail = new javax.swing.JTextField();
-        btnEntrar = new javax.swing.JButton();
+        btnEntrar = new BotaoArredondado("Entrar");
         jLabel5 = new javax.swing.JLabel();
         lblEmail = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -46,7 +48,6 @@ public class TelaLogin extends javax.swing.JFrame {
         jPanel1.setBackground(Tema.FUNDO);
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(Tema.LARANJA));
 
         jLabel1.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
         jLabel1.setForeground(Tema.TEXTO);
@@ -135,14 +136,14 @@ public class TelaLogin extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(69, 69, 69)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(73, Short.MAX_VALUE))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(111, 111, 111)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(121, Short.MAX_VALUE))
+                .addContainerGap(123, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

@@ -11,7 +11,10 @@ package com.mycompany.kinship;
 public class Kinship {
 
     public static void main(String[] args) {
-        TelaLogin telaLogin = new TelaLogin();
-        telaLogin.setVisible(true);
+        //TelaLogin telaLogin = new TelaLogin();
+        //telaLogin.setVisible(true);
+        
+        TelaFeed telaFeed = new TelaFeed();
+        telaFeed.setVisible(true);
     }
 }
