@@ -7,6 +7,7 @@ import com.mycompany.kinship.ui.Tema;
 import com.mycompany.kinship.ui.ToggleArredondado;
 import com.mycompany.kinship.ui.BotaoArredondado;
 import com.mycompany.kinship.ui.PainelArredondado;
+import com.mycompany.kinship.ui.CampoTextoArredondado;
 /**
  *
  * @author gui
@@ -55,7 +56,7 @@ public class TelaFeed extends javax.swing.JFrame {
         toggleInsertionSort = new ToggleArredondado("Insertion Sort");
         toggleMergeSort = new ToggleArredondado("Merge Sort");
         toggleQuickSort = new ToggleArredondado("Quick Sort");
-        txtQuantidadeRegistros = new javax.swing.JTextField();
+        txtQuantidadeRegistros = new CampoTextoArredondado();
         jPanel5 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();

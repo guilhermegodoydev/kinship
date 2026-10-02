@@ -6,6 +6,9 @@ package com.mycompany.kinship;
 import com.mycompany.kinship.ui.Tema;
 import com.mycompany.kinship.ui.BotaoArredondado;
 import com.mycompany.kinship.ui.PainelArredondado;
+import com.mycompany.kinship.ui.CampoTextoArredondado;
+import com.mycompany.kinship.ui.CampoSenhaArredondado;
+
 /**
  *
  * @author gui
@@ -34,12 +37,12 @@ public class TelaLogin extends javax.swing.JFrame {
         jPanel2 = new PainelArredondado();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        txtEmail = new javax.swing.JTextField();
+        txtEmail = new CampoTextoArredondado();
         btnEntrar = new BotaoArredondado("Entrar");
         jLabel5 = new javax.swing.JLabel();
         lblEmail = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        txtSenha = new javax.swing.JPasswordField();
+        txtSenha = new CampoSenhaArredondado();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Login");
@@ -57,7 +60,8 @@ public class TelaLogin extends javax.swing.JFrame {
         jLabel2.setForeground(Tema.TEXTO_SUAVE);
         jLabel2.setText("Entre para ver o Feed");
 
-        txtEmail.setBorder(javax.swing.BorderFactory.createLineBorder(Tema.LARANJA));
+        txtEmail.setBackground(new java.awt.Color(204, 204, 204));
+        txtEmail.setBorder(null);
 
         btnEntrar.setBackground(Tema.LARANJA);
         btnEntrar.setForeground(Tema.TEXTO);
@@ -73,7 +77,8 @@ public class TelaLogin extends javax.swing.JFrame {
         jLabel4.setForeground(Tema.TEXTO);
         jLabel4.setText("Senha:");
 
-        txtSenha.setBorder(javax.swing.BorderFactory.createLineBorder(Tema.LARANJA));
+        txtSenha.setBackground(new java.awt.Color(204, 204, 204));
+        txtSenha.setBorder(null);
         txtSenha.addActionListener(this::txtSenhaActionPerformed);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);

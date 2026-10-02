@@ -164,14 +164,16 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtEmail">
               <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="cc" green="cc" red="cc" type="rgb"/>
+                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
-                    <LineBorder>
-                      <Connection PropertyName="color" code="Tema.LARANJA" type="code"/>
-                    </LineBorder>
-                  </Border>
+                  <Border info="null"/>
                 </Property>
               </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new CampoTextoArredondado();"/>
+              </AuxValues>
             </Component>
             <Component class="javax.swing.JButton" name="btnEntrar">
               <Properties>
@@ -216,17 +218,19 @@
             </Component>
             <Component class="javax.swing.JPasswordField" name="txtSenha">
               <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="cc" green="cc" red="cc" type="rgb"/>
+                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
-                    <LineBorder>
-                      <Connection PropertyName="color" code="Tema.LARANJA" type="code"/>
-                    </LineBorder>
-                  </Border>
+                  <Border info="null"/>
                 </Property>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtSenhaActionPerformed"/>
               </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new CampoSenhaArredondado();"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>
