@@ -35,10 +35,10 @@ public class TelaPerfil extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         panelHeader1 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
+        lblFeed = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        lblSair = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
@@ -69,8 +69,13 @@ public class TelaPerfil extends javax.swing.JFrame {
 
         jPanel4.setBackground(new java.awt.Color(255, 204, 153));
 
-        jLabel5.setForeground(Tema.TEXTO);
-        jLabel5.setText("Feed");
+        lblFeed.setForeground(Tema.TEXTO);
+        lblFeed.setText("Feed");
+        lblFeed.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblFeedMouseClicked(evt);
+            }
+        });
 
         jLabel6.setForeground(Tema.TEXTO);
         jLabel6.setText("Perfil");
@@ -78,8 +83,13 @@ public class TelaPerfil extends javax.swing.JFrame {
         jLabel7.setForeground(Tema.TEXTO);
         jLabel7.setText("Benchmark");
 
-        jLabel8.setForeground(Tema.TEXTO);
-        jLabel8.setText("Sair");
+        lblSair.setForeground(Tema.TEXTO);
+        lblSair.setText("Sair");
+        lblSair.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblSairMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -87,13 +97,13 @@ public class TelaPerfil extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap(84, Short.MAX_VALUE)
-                .addComponent(jLabel5)
+                .addComponent(lblFeed)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel6)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel7)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel8)
+                .addComponent(lblSair)
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -101,10 +111,10 @@ public class TelaPerfil extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
+                    .addComponent(lblFeed)
                     .addComponent(jLabel6)
                     .addComponent(jLabel7)
-                    .addComponent(jLabel8)))
+                    .addComponent(lblSair)))
         );
 
         javax.swing.GroupLayout panelHeader1Layout = new javax.swing.GroupLayout(panelHeader1);
@@ -308,6 +318,18 @@ public class TelaPerfil extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void lblSairMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSairMouseClicked
+        TelaLogin telaLogin = new TelaLogin();
+        telaLogin.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_lblSairMouseClicked
+
+    private void lblFeedMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblFeedMouseClicked
+        TelaFeed telaFeed = new TelaFeed();
+        telaFeed.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_lblFeedMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -343,10 +365,8 @@ public class TelaPerfil extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -357,6 +377,8 @@ public class TelaPerfil extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lblFeed;
+    private javax.swing.JLabel lblSair;
     private javax.swing.JPanel panelHeader1;
     private javax.swing.JScrollPane scrollPostagens;
     // End of variables declaration//GEN-END:variables

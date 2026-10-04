@@ -67,6 +67,7 @@ public class TelaLogin extends javax.swing.JFrame {
         btnEntrar.setForeground(Tema.TEXTO);
         btnEntrar.setText("Entrar");
         btnEntrar.setBorder(null);
+        btnEntrar.addActionListener(this::btnEntrarActionPerformed);
 
         jLabel5.setForeground(Tema.TEXTO);
         jLabel5.setText("Criar Conta");
@@ -169,6 +170,12 @@ public class TelaLogin extends javax.swing.JFrame {
     private void txtSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSenhaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtSenhaActionPerformed
+
+    private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
+        TelaFeed telaFeed = new TelaFeed();
+        telaFeed.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnEntrarActionPerformed
 
     /**
      * @param args the command line arguments
