@@ -7,6 +7,7 @@ package com.mycompany.kinship;
 import com.mycompany.kinship.ui.Tema;
 import com.mycompany.kinship.ui.BotaoArredondado;
 import com.mycompany.kinship.ui.PainelArredondado;
+import javax.swing.JFrame;
 
 /**
  *
@@ -21,6 +22,8 @@ public class TelaPerfil extends javax.swing.JFrame {
      */
     public TelaPerfil() {
         initComponents();
+        
+        //this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
     }
 
     /**
@@ -37,7 +40,7 @@ public class TelaPerfil extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         lblFeed = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        lblBenchmark = new javax.swing.JLabel();
         lblSair = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
@@ -60,8 +63,12 @@ public class TelaPerfil extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Kinship - Perfil");
         setBackground(Tema.FUNDO);
+        setExtendedState(6);
         setLocationByPlatform(true);
+        setPreferredSize(new java.awt.Dimension(0, 0));
+        setState(6);
 
         jPanel1.setBackground(Tema.FUNDO);
 
@@ -77,11 +84,16 @@ public class TelaPerfil extends javax.swing.JFrame {
             }
         });
 
-        jLabel6.setForeground(Tema.TEXTO);
+        jLabel6.setForeground(Tema.LARANJA);
         jLabel6.setText("Perfil");
 
-        jLabel7.setForeground(Tema.TEXTO);
-        jLabel7.setText("Benchmark");
+        lblBenchmark.setForeground(Tema.TEXTO);
+        lblBenchmark.setText("Benchmark");
+        lblBenchmark.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblBenchmarkMouseClicked(evt);
+            }
+        });
 
         lblSair.setForeground(Tema.TEXTO);
         lblSair.setText("Sair");
@@ -101,7 +113,7 @@ public class TelaPerfil extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel6)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel7)
+                .addComponent(lblBenchmark)
                 .addGap(18, 18, 18)
                 .addComponent(lblSair)
                 .addContainerGap())
@@ -113,7 +125,7 @@ public class TelaPerfil extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblFeed)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel7)
+                    .addComponent(lblBenchmark)
                     .addComponent(lblSair)))
         );
 
@@ -304,7 +316,7 @@ public class TelaPerfil extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -312,6 +324,7 @@ public class TelaPerfil extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -329,6 +342,12 @@ public class TelaPerfil extends javax.swing.JFrame {
         telaFeed.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_lblFeedMouseClicked
+
+    private void lblBenchmarkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBenchmarkMouseClicked
+        TelaBenchmark telaBenck = new TelaBenchmark();
+        telaBenck.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_lblBenchmarkMouseClicked
 
     /**
      * @param args the command line arguments
@@ -366,7 +385,6 @@ public class TelaPerfil extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -377,6 +395,7 @@ public class TelaPerfil extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lblBenchmark;
     private javax.swing.JLabel lblFeed;
     private javax.swing.JLabel lblSair;
     private javax.swing.JPanel panelHeader1;

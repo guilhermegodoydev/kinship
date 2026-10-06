@@ -45,7 +45,7 @@ public class TelaFeed extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         lblPerfil = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        lblBenchmark = new javax.swing.JLabel();
         lblSair = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
@@ -76,6 +76,10 @@ public class TelaFeed extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Feed");
+        setExtendedState(6);
+        setMinimumSize(new java.awt.Dimension(700, 530));
+        setPreferredSize(new java.awt.Dimension(700, 530));
+        setSize(new java.awt.Dimension(700, 530));
 
         jPanel1.setBackground(Tema.FUNDO);
         jPanel1.setForeground(new java.awt.Color(204, 204, 204));
@@ -128,7 +132,7 @@ public class TelaFeed extends javax.swing.JFrame {
 
         jPanel3.setBackground(new java.awt.Color(255, 204, 153));
 
-        jLabel1.setForeground(Tema.TEXTO);
+        jLabel1.setForeground(Tema.LARANJA);
         jLabel1.setText("Feed");
 
         lblPerfil.setForeground(Tema.TEXTO);
@@ -139,8 +143,13 @@ public class TelaFeed extends javax.swing.JFrame {
             }
         });
 
-        jLabel3.setForeground(Tema.TEXTO);
-        jLabel3.setText("Benchmark");
+        lblBenchmark.setForeground(Tema.TEXTO);
+        lblBenchmark.setText("Benchmark");
+        lblBenchmark.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblBenchmarkMouseClicked(evt);
+            }
+        });
 
         lblSair.setForeground(Tema.TEXTO);
         lblSair.setText("Sair");
@@ -160,7 +169,7 @@ public class TelaFeed extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(lblPerfil)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel3)
+                .addComponent(lblBenchmark)
                 .addGap(18, 18, 18)
                 .addComponent(lblSair)
                 .addContainerGap())
@@ -172,7 +181,7 @@ public class TelaFeed extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(lblPerfil)
-                    .addComponent(jLabel3)
+                    .addComponent(lblBenchmark)
                     .addComponent(lblSair)))
         );
 
@@ -231,7 +240,7 @@ public class TelaFeed extends javax.swing.JFrame {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel10)
@@ -288,7 +297,7 @@ public class TelaFeed extends javax.swing.JFrame {
                 .addComponent(txtQuantidadeRegistros, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnOrdenar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -396,12 +405,12 @@ public class TelaFeed extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelBotoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(scrollPostagens, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(panelBotoes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(scrollPostagens))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 3, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
             .addComponent(panelHeader, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -450,6 +459,12 @@ public class TelaFeed extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_lblPerfilMouseClicked
 
+    private void lblBenchmarkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblBenchmarkMouseClicked
+       TelaBenchmark telaBench = new TelaBenchmark();
+       telaBench.setVisible(true);
+       this.dispose();
+    }//GEN-LAST:event_lblBenchmarkMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -487,7 +502,6 @@ public class TelaFeed extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -502,6 +516,7 @@ public class TelaFeed extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lblBenchmark;
     private javax.swing.JLabel lblPerfil;
     private javax.swing.JLabel lblSair;
     private javax.swing.JPanel panelBotoes;
