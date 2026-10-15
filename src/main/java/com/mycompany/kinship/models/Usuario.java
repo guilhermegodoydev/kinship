@@ -1,0 +1,69 @@
+package com.mycompany.kinship.models;
+
+public class Usuario {
+
+    private Integer codigo;
+    private String nome;
+    private String nickname;
+    private String email;
+    private String senha;
+    private String biografia;
+    private String fotoPerfil;
+
+    public Usuario(String nome, String nickname, String email, String senhaHash) {
+        this(null, nome, nickname, email, senhaHash, null, null);
+    }
+
+    public Usuario(Integer codigo, String nome, String nickname, String email, String senhaHash,
+                   String biografia, String fotoPerfil) {
+        this.codigo = codigo;
+        this.nome = Validacao.obrigatorio(nome, "Nome", 100);
+        this.nickname = Validacao.obrigatorio(nickname, "Nickname", 30);
+        this.email = Validacao.email(email, 150);
+        this.senha = Validacao.obrigatorio(senhaHash, "Senha", 255);
+        this.biografia = Validacao.opcional(biografia, "Biografia", 300);
+        this.fotoPerfil = Validacao.opcional(fotoPerfil, "Foto de perfil", 255);
+    }
+
+    public void atualizarPerfil(String nome, String biografia, String fotoPerfil) {
+        this.nome = Validacao.obrigatorio(nome, "Nome", 100);
+        this.biografia = Validacao.opcional(biografia, "Biografia", 300);
+        this.fotoPerfil = Validacao.opcional(fotoPerfil, "Foto de perfil", 255);
+    }
+
+    public void alterarSenha(String novoHash) {
+        this.senha = Validacao.obrigatorio(novoHash, "Senha", 255);
+    }
+
+    public Integer getCodigo() {
+        return codigo;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public String getBiografia() {
+        return biografia;
+    }
+
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setCodigo(int codigo) {
+        this.codigo = Validacao.idPositivo(codigo, "Código");
+    }
+}
