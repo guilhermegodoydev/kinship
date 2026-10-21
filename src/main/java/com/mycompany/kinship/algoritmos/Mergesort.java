@@ -1,62 +1,26 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.kinship.algoritmos;
+
 import java.util.Comparator;
 
 public class Mergesort {
-
     public static <T> void ordenar(T[] array, Comparator<T> comparador) {
         if (array == null || array.length < 2) {
             return;
         }
-
-        boolean melhorCaso = true;
-        boolean piorCaso = true;
-
-        // Identifica o melhor caso e o pior caso
-        for (int i = 0; i < array.length - 1; i++) {
-
-            if (comparador.compare(array[i], array[i + 1]) > 0) {
-                melhorCaso = false;
-            }
-
-            if (comparador.compare(array[i], array[i + 1]) < 0) {
-                piorCaso = false;
-            }
-        }
-
-        if (melhorCaso) {
-            System.out.println("Melhor caso: O(n log n)");
-        } else if (piorCaso) {
-            System.out.println("Pior caso: O(n log n)");
-        } else {
-            System.out.println("Caso médio: O(n log n)");
-        }
-
         executarMergeSort(array, 0, array.length - 1, comparador);
     }
 
-    private static <T> void executarMergeSort(
-            T[] array, int inicio, int fim, Comparator<T> comparador) {
-
+    private static <T> void executarMergeSort(T[] array, int inicio, int fim, Comparator<T> comparador) {
         if (inicio < fim) {
             int meio = inicio + (fim - inicio) / 2;
-
             executarMergeSort(array, inicio, meio, comparador);
             executarMergeSort(array, meio + 1, fim, comparador);
-
             merge(array, inicio, meio, fim, comparador);
         }
     }
 
-    private static <T> void merge(
-            T[] array, int inicio, int meio, int fim,
-            Comparator<T> comparador) {
-
+    private static <T> void merge(T[] array, int inicio, int meio, int fim, Comparator<T> comparador) {
         int tamanho = fim - inicio + 1;
-
         @SuppressWarnings("unchecked")
         T[] novoArray = (T[]) new Object[tamanho];
 

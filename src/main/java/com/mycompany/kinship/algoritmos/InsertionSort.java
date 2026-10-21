@@ -10,29 +10,6 @@ public class InsertionSort {
             return;
         }
 
-        boolean melhorCaso = true;
-        boolean piorCaso = true;
-
-        // Identifica o melhor caso e o pior caso
-        for (int i = 0; i < array.length - 1; i++) {
-
-            if (comparador.compare(array[i], array[i + 1]) > 0) {
-                melhorCaso = false;
-            }
-
-            if (comparador.compare(array[i], array[i + 1]) < 0) {
-                piorCaso = false;
-            }
-        }
-
-        if (melhorCaso) {
-            System.out.println("Melhor caso: O(n)");
-        } else if (piorCaso) {
-            System.out.println("Pior caso: O(n²)");
-        } else {
-            System.out.println("Caso médio: O(n²)");
-        }
-
         // Algoritmo Insertion Sort
         for (int i = 1; i < array.length; i++) {
 
@@ -50,4 +27,3 @@ public class InsertionSort {
         }
     }
 }
-
