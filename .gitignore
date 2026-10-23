@@ -22,3 +22,6 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+
+# Configuração local com senhas do banco
+config.properties
