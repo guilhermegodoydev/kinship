@@ -1,5 +1,7 @@
 package com.mycompany.kinship.models;
 
+import java.time.LocalDateTime;
+
 public class Usuario {
 
     private Integer codigo;
@@ -9,13 +11,19 @@ public class Usuario {
     private String senha;
     private String biografia;
     private String fotoPerfil;
+    private LocalDateTime dataCadastro;
 
     public Usuario(String nome, String nickname, String email, String senhaHash) {
-        this(null, nome, nickname, email, senhaHash, null, null);
+        this(null, nome, nickname, email, senhaHash, null, null, null);
     }
 
     public Usuario(Integer codigo, String nome, String nickname, String email, String senhaHash,
                    String biografia, String fotoPerfil) {
+        this(codigo, nome, nickname, email, senhaHash, biografia, fotoPerfil, null);
+    }
+
+    public Usuario(Integer codigo, String nome, String nickname, String email, String senhaHash,
+                   String biografia, String fotoPerfil, LocalDateTime dataCadastro) {
         this.codigo = codigo;
         this.nome = Validacao.obrigatorio(nome, "Nome", 100);
         this.nickname = Validacao.obrigatorio(nickname, "Nickname", 30);
@@ -23,6 +31,7 @@ public class Usuario {
         this.senha = Validacao.obrigatorio(senhaHash, "Senha", 255);
         this.biografia = Validacao.opcional(biografia, "Biografia", 300);
         this.fotoPerfil = Validacao.opcional(fotoPerfil, "Foto de perfil", 255);
+        this.dataCadastro = dataCadastro;
     }
 
     public void atualizarPerfil(String nome, String biografia, String fotoPerfil) {
@@ -61,6 +70,10 @@ public class Usuario {
 
     public String getFotoPerfil() {
         return fotoPerfil;
+    }
+
+    public LocalDateTime getDataCadastro() {
+        return dataCadastro;
     }
 
     public void setCodigo(int codigo) {
