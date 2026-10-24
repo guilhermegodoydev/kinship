@@ -25,23 +25,23 @@ public class Usuario {
     public Usuario(Integer codigo, String nome, String nickname, String email, String senhaHash,
                    String biografia, String fotoPerfil, LocalDateTime dataCadastro) {
         this.codigo = codigo;
-        this.nome = Validacao.obrigatorio(nome, "Nome", 100);
-        this.nickname = Validacao.obrigatorio(nickname, "Nickname", 30);
-        this.email = Validacao.email(email, 150);
-        this.senha = Validacao.obrigatorio(senhaHash, "Senha", 255);
-        this.biografia = Validacao.opcional(biografia, "Biografia", 300);
-        this.fotoPerfil = Validacao.opcional(fotoPerfil, "Foto de perfil", 255);
+        this.nome = Validacao.obrigatorio("nome", nome, "Nome", 100);
+        this.nickname = Validacao.nickname("nickname", nickname);
+        this.email = Validacao.email("email", email, 150);
+        this.senha = Validacao.obrigatorio("senha", senhaHash, "Senha", 255);
+        this.biografia = Validacao.opcional("biografia", biografia, "Biografia", 300);
+        this.fotoPerfil = Validacao.opcional("fotoPerfil", fotoPerfil, "Foto de perfil", 255);
         this.dataCadastro = dataCadastro;
     }
 
     public void atualizarPerfil(String nome, String biografia, String fotoPerfil) {
-        this.nome = Validacao.obrigatorio(nome, "Nome", 100);
-        this.biografia = Validacao.opcional(biografia, "Biografia", 300);
-        this.fotoPerfil = Validacao.opcional(fotoPerfil, "Foto de perfil", 255);
+        this.nome = Validacao.obrigatorio("nome", nome, "Nome", 100);
+        this.biografia = Validacao.opcional("biografia", biografia, "Biografia", 300);
+        this.fotoPerfil = Validacao.opcional("fotoPerfil", fotoPerfil, "Foto de perfil", 255);
     }
 
     public void alterarSenha(String novoHash) {
-        this.senha = Validacao.obrigatorio(novoHash, "Senha", 255);
+        this.senha = Validacao.obrigatorio("senha", novoHash, "Senha", 255);
     }
 
     public Integer getCodigo() {
