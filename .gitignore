@@ -1,7 +1,5 @@
+# Arquivos compilados e pacotes Java
 *.class
-*.log
-*.ctxt
-.mtj.tmp/
 *.jar
 *.war
 *.nar
@@ -9,19 +7,33 @@
 *.zip
 *.tar.gz
 *.rar
+
+# Arquivos de log e erro do sistema
+*.log
 hs_err_pid*
 replay_pid*
+
+# Pastas de build e saídas do NetBeans/Maven
 target/
-*.tag
-*.releaseBackup
-*.versionsBackup
-nbproject/private/
 build/
 nbbuild/
 dist/
 nbdist/
+.mtj.tmp/
+
+# Configurações locais do NetBeans e IDEs
+nbproject/private/
 nbactions.xml
 nb-configuration.xml
+.idea/
 
-# Configuração local com senhas do banco
+# Arquivos BlueJ
+*.ctxt
+*.tag
+
+# Arquivos de backup de versões
+*.releaseBackup
+*.versionsBackup
+
+# Configuração local com senhas do banco (NUNCA enviar ao GitHub)
 config.properties

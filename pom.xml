@@ -10,4 +10,11 @@
         <maven.compiler.release>21</maven.compiler.release>
         <exec.mainClass>com.mycompany.kinship.Kinship</exec.mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>12.8.1.jre11</version>
+        </dependency>
+    </dependencies>
 </project>
