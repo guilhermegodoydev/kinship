@@ -37,9 +37,9 @@ public class Conexao {
         }
         
         System.out.println("url     = [" + CONFIG.getProperty("db.url") + "]");
-System.out.println("usuario = [" + CONFIG.getProperty("db.usuario") + "]");
-String s = CONFIG.getProperty("db.senha");
-System.out.println("senha tem " + (s == null ? "null" : s.length() + " caracteres"));
-System.out.println("chaves lidas: " + CONFIG.stringPropertyNames());
+        System.out.println("usuario = [" + CONFIG.getProperty("db.usuario") + "]");
+        String s = CONFIG.getProperty("db.senha");
+        System.out.println("senha tem " + (s == null ? "null" : s.length() + " caracteres"));
+        System.out.println("chaves lidas: " + CONFIG.stringPropertyNames());
     }
 }
