@@ -192,8 +192,11 @@ public class TelaFeed extends javax.swing.JFrame {
     
     private void configurarFeed() {
         painelPosts.setPreferredSize(null);
-        painelPosts.setMinimumSize(null);
-        painelPosts.setMaximumSize(null);
+        painelPosts.setMinimumSize(new Dimension(0, 0));
+        painelPosts.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+        painelPosts.setLayout(new BoxLayout(painelPosts, BoxLayout.Y_AXIS));
+        painelPosts.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JScrollBar barra = scrollPostagens.getVerticalScrollBar();
         barra.setUnitIncrement(24);
@@ -202,9 +205,13 @@ public class TelaFeed extends javax.swing.JFrame {
                 carregarProximaPagina();
             }
         });
-        
+
         painelPosts.setOpaque(true);
         painelPosts.setBackground(Tema.FUNDO);
+
+        scrollPostagens.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        );
         scrollPostagens.getViewport().setOpaque(true);
         scrollPostagens.getViewport().setBackground(Tema.FUNDO);
     }
@@ -253,7 +260,7 @@ public class TelaFeed extends javax.swing.JFrame {
                 }
 
                 for (Post p : fatia) {
-                    painelPosts.add(new PostCard(
+                    PostCard card = new PostCard(
                             p.getCodigo(),
                             p.getAutorNome(),
                             Formatacao.tempoRelativo(p.getDataPublicacao()),
@@ -262,7 +269,13 @@ public class TelaFeed extends javax.swing.JFrame {
                             p.getTotalComentarios(),
                             Formatacao.resumoComentario(dados.destaques().get(p.getCodigo())),
                             dados.curtidos().contains(p.getCodigo()),
-                            acoesDosCards));
+                            acoesDosCards
+                    );
+
+                    card.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    card.setMaximumSize(new Dimension(Integer.MAX_VALUE, card.getPreferredSize().height));
+
+                    painelPosts.add(card);
                     painelPosts.add(Box.createVerticalStrut(12));
                 }
                 
@@ -813,15 +826,15 @@ public class TelaFeed extends javax.swing.JFrame {
         panelLabelsResultados.setLayout(new javax.swing.BoxLayout(panelLabelsResultados, javax.swing.BoxLayout.Y_AXIS));
 
         lblTrocas.setForeground(Tema.TEXTO_SUAVE);
-        lblTrocas.setText("Trocas: 10.453");
+        lblTrocas.setText("Trocas: 0");
         panelLabelsResultados.add(lblTrocas);
 
         lblComparacoes.setForeground(Tema.TEXTO_SUAVE);
-        lblComparacoes.setText("Comparações: 124.380");
+        lblComparacoes.setText("Comparações: 0");
         panelLabelsResultados.add(lblComparacoes);
 
         lblTempo.setForeground(Tema.TEXTO_SUAVE);
-        lblTempo.setText("Tempo: 38ms");
+        lblTempo.setText("Tempo: 0");
         panelLabelsResultados.add(lblTempo);
 
         panelMenuLateral.add(panelLabelsResultados);
@@ -844,7 +857,7 @@ public class TelaFeed extends javax.swing.JFrame {
         jPanel2.setLayout(new java.awt.BorderLayout(10, 0));
 
         lblOrdenando.setForeground(Tema.TEXTO);
-        lblOrdenando.setText("50 posts ordenados por mais curtidos");
+        lblOrdenando.setText("0 posts ordenados por mais curtidos");
         lblOrdenando.setToolTipText("");
         jPanel2.add(lblOrdenando, java.awt.BorderLayout.NORTH);
 

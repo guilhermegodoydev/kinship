@@ -8,6 +8,43 @@ import com.mycompany.kinship.ui.Tema;
 import com.mycompany.kinship.ui.BotaoArredondado;
 import com.mycompany.kinship.ui.PainelArredondado;
 import javax.swing.JFrame;
+import com.mycompany.kinship.dao.PostDAO;
+import com.mycompany.kinship.models.Post;
+import com.mycompany.kinship.models.Usuario;
+import com.mycompany.kinship.services.Sessao;
+import com.mycompany.kinship.ui.AvatarCircular;
+import com.mycompany.kinship.ui.PostCard;
+import com.mycompany.kinship.services.CurtidaService;
+import com.mycompany.kinship.services.ComentarioService;
+import com.mycompany.kinship.daos.ComentarioDAO;
+import com.mycompany.kinship.ui.CampoTextoArredondado;
+import com.mycompany.kinship.services.ValidacaoException;
+import java.awt.Component;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import com.mycompany.kinship.daos.UsuarioDAO;
+import com.mycompany.kinship.ui.AreaTextoArredondada;
+import com.mycompany.kinship.ui.Formatacao;
+import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.Color;
 
 /**
  *
@@ -17,13 +54,45 @@ public class TelaPerfil extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaPerfil.class.getName());
 
-    /**
-     * Creates new form TelaPerfil
-     */
+    private final PostDAO postDAO = new PostDAO();
+    private final CurtidaService curtidaService = new CurtidaService();
+    private final ComentarioService comentarioService = new ComentarioService();
+    private final ComentarioDAO comentarioDAO = new ComentarioDAO();
+    private final Map<Integer, Post> postsPorCodigo = new HashMap<>();
+    private AvatarCircular avatar;
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private String novaFotoPerfil;
+    
     public TelaPerfil() {
         initComponents();
         
+        if (!Sessao.estaLogado()) {
+            JOptionPane.showMessageDialog(this, "Faça login para acessar seu perfil.");
+            new TelaLogin().setVisible(true);
+            dispose();
+            return;
+        }
+
+        jPanel6.setBackground(Tema.FUNDO);
+        jPanel6.setLayout(new javax.swing.BoxLayout(
+                jPanel6, javax.swing.BoxLayout.Y_AXIS
+        ));
+        jPanel6.setPreferredSize(null);
+        jPanel6.setMinimumSize(new java.awt.Dimension(0, 0));
+        jPanel6.setMaximumSize(new java.awt.Dimension(
+                Integer.MAX_VALUE, Integer.MAX_VALUE
+        ));
+
+        scrollPostagens.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        );
+        scrollPostagens.getVerticalScrollBar().setUnitIncrement(24);
+        scrollPostagens.getViewport().setBackground(Tema.FUNDO);
+        scrollPostagens.getViewport().setOpaque(true);
         
+        configurarAvatar();
+        carregarDadosPerfil();
+        carregarPostagens();
     }
 
     /**
@@ -147,9 +216,11 @@ public class TelaPerfil extends javax.swing.JFrame {
         painelBotoesAcoes.add(btnNovoPost);
 
         btnEditarPerfil.setText("Editar perfil");
+        btnEditarPerfil.addActionListener(this::btnEditarPerfilActionPerformed);
         painelBotoesAcoes.add(btnEditarPerfil);
 
         btnDeletarConta.setText("Deletar Conta");
+        btnDeletarConta.addActionListener(this::btnDeletarContaActionPerformed);
         painelBotoesAcoes.add(btnDeletarConta);
 
         scrollPostagens.setBackground(Tema.FUNDO);
@@ -168,6 +239,7 @@ public class TelaPerfil extends javax.swing.JFrame {
         painelInformacoesPerfil.setLayout(new java.awt.BorderLayout(20, 0));
 
         foto.setBackground(new java.awt.Color(255, 204, 153));
+        foto.setOpaque(false);
         foto.setPreferredSize(new java.awt.Dimension(64, 64));
 
         javax.swing.GroupLayout fotoLayout = new javax.swing.GroupLayout(foto);
@@ -240,14 +312,477 @@ public class TelaPerfil extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void configurarAvatar() {
+        Usuario usuario = Sessao.getUsuarioLogado();
+
+        avatar = new AvatarCircular(64, usuario.getNome());
+        foto.removeAll();
+        foto.setLayout(new java.awt.BorderLayout());
+        foto.add(avatar, java.awt.BorderLayout.CENTER);
+        foto.revalidate();
+        foto.repaint();
+
+        String caminho = usuario.getFotoPerfil();
+
+        if (caminho != null && !caminho.isBlank()) {
+            try {
+                BufferedImage imagem = ImageIO.read(new File(caminho));
+                avatar.setImagem(imagem);
+            } catch (IOException | IllegalArgumentException e) {
+                avatar.setImagem(null);
+            }
+        }
+    }
+
+    private void carregarDadosPerfil() {
+        Usuario usuario = Sessao.getUsuarioLogado();
+
+        lblNomeUsuario.setText(usuario.getNome() + " (@" + usuario.getNickname() + ")");
+
+        String biografia = usuario.getBiografia();
+        lblBio.setText(biografia == null || biografia.isBlank()
+                ? "Nenhuma biografia adicionada."
+                : biografia);
+    }
+
+    private void carregarPostagens() {
+        jPanel6.removeAll();
+        jPanel6.add(new javax.swing.JLabel("Carregando postagens..."));
+        jPanel6.revalidate();
+        jPanel6.repaint();
+
+        int codigoUsuario = Sessao.getUsuarioLogado().getCodigo();
+
+        new SwingWorker<Object[], Void>() {
+            @Override
+            protected Object[] doInBackground() throws Exception {
+                List<Post> posts = postDAO.listarPorUsuario(codigoUsuario);
+
+                List<Integer> codigos = posts.stream()
+                        .map(Post::getCodigo)
+                        .toList();
+
+                java.util.Set<Integer> curtidos = codigos.isEmpty()
+                        ? java.util.Set.of()
+                        : curtidaService.postsCurtidos(codigoUsuario, codigos);
+
+                return new Object[]{posts, curtidos};
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            protected void done() {
+                try {
+                    Object[] resultado = get();
+                    List<Post> posts = (List<Post>) resultado[0];
+                    java.util.Set<Integer> curtidos =
+                            (java.util.Set<Integer>) resultado[1];
+
+                    jPanel6.removeAll();
+                    postsPorCodigo.clear();
+
+                    if (posts.isEmpty()) {
+                        jPanel6.add(new javax.swing.JLabel(
+                                "Você ainda não publicou nenhuma postagem."
+                        ));
+                    } else {
+                        for (Post post : posts) {
+                            postsPorCodigo.put(post.getCodigo(), post);
+
+                            PostCard card = criarCard(
+                                    post,
+                                    curtidos.contains(post.getCodigo())
+                            );
+
+                            card.setAlignmentX(Component.CENTER_ALIGNMENT);
+                            card.setMaximumSize(new java.awt.Dimension(
+                                    Integer.MAX_VALUE,
+                                    card.getPreferredSize().height
+                            ));
+
+                            jPanel6.add(card);
+                            jPanel6.add(Box.createVerticalStrut(12));
+                        }
+                    }
+
+                    jPanel6.revalidate();
+                    jPanel6.repaint();
+
+                } catch (Exception e) {
+                    logger.log(
+                            java.util.logging.Level.SEVERE,
+                            "Erro ao carregar postagens do perfil.",
+                            e
+                    );
+
+                    JOptionPane.showMessageDialog(
+                            TelaPerfil.this,
+                            "Não foi possível carregar suas postagens."
+                    );
+                }
+            }
+        }.execute();
+    }
+    
+    private PostCard criarCard(Post post, boolean curtido) {
+        return new PostCard(
+            post.getCodigo(),
+            post.getAutorNome(),
+            Formatacao.tempoRelativo(post.getDataPublicacao()),
+            post.getConteudo(),
+            post.getTotalCurtidas(),
+            post.getTotalComentarios(),
+            "",
+            curtido,
+            new PostCard.Acoes(
+                this::alternarCurtida,
+                card -> JOptionPane.showMessageDialog(
+                    this,
+                    "A tela de comentários ainda não foi conectada ao perfil."
+                )
+            ),
+            new PostCard.AcoesPerfil(
+                this::editarPostagem,
+                this::excluirPostagem
+            )
+        );
+    }
+    
+    private void editarPostagem(PostCard card) {
+        Post post = postsPorCodigo.get(card.getCodigoPost());
+
+        if (post == null) {
+            JOptionPane.showMessageDialog(this, "Postagem não encontrada.");
+            return;
+        }
+        
+        AreaTextoArredondada campoTexto = new AreaTextoArredondada(8, 35);
+        campoTexto.setText(post.getConteudo());
+        campoTexto.definirTamanho(420, 200);
+
+        JPanel painel = new JPanel();
+        painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
+        painel.setBackground(Color.WHITE);
+
+        JLabel lblConteudo = new JLabel("Conteúdo do post:");
+        lblConteudo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        campoTexto.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        painel.add(lblConteudo);
+        painel.add(Box.createVerticalStrut(8));
+        painel.add(campoTexto);
+
+        boolean confirmado = mostrarDialogoFormulario(
+                "Editar postagem",
+                painel,
+                "Salvar",
+                480,
+                320
+        );
+
+        if (!confirmado) {
+            return;
+        }
+
+
+        String novoConteudo = campoTexto.getText().trim();
+
+        if (novoConteudo.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "O conteúdo da postagem não pode ficar vazio."
+            );
+            return;
+        }
+
+        if (novoConteudo.equals(post.getConteudo())) {
+            return;
+        }
+
+        Post postAtualizado = new Post(
+            novoConteudo,
+            Sessao.getUsuarioLogado().getCodigo()
+        );
+        postAtualizado.setCodigo(post.getCodigo());
+
+        card.definirOcupado(true);
+
+        new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                postAtualizado.editarConteudo(novoConteudo);
+                return postDAO.atualizarConteudo(postAtualizado);
+            }
+
+            @Override
+            protected void done() {
+                card.definirOcupado(false);
+
+                try {
+                    if (!get()) {
+                        JOptionPane.showMessageDialog(
+                            TelaPerfil.this,
+                            "Não foi possível atualizar a postagem."
+                        );
+                        return;
+                    }
+
+                    post.editarConteudo(novoConteudo);
+                    card.atualizarTexto(post.getConteudo());
+
+                    JOptionPane.showMessageDialog(
+                        TelaPerfil.this,
+                        "Postagem atualizada com sucesso."
+                    );
+                } catch (Exception e) {
+                    logger.log(
+                        java.util.logging.Level.SEVERE,
+                        "Erro ao editar postagem.",
+                        e
+                    );
+
+                    JOptionPane.showMessageDialog(
+                        TelaPerfil.this,
+                        "Ocorreu um erro ao editar a postagem."
+                    );
+                }
+            }
+        }.execute();
+    }
+
+    
+    private boolean mostrarDialogoFormulario(
+            String titulo,
+            javax.swing.JComponent conteudo,
+            String textoConfirmar,
+            int largura,
+            int altura
+    ) {
+        javax.swing.JDialog dialogo = new javax.swing.JDialog(
+                this, titulo, true
+        );
+
+        dialogo.setDefaultCloseOperation(
+                javax.swing.JDialog.DISPOSE_ON_CLOSE
+        );
+
+        JPanel painelPrincipal = new JPanel(new java.awt.BorderLayout(0, 12));
+        painelPrincipal.setBackground(java.awt.Color.WHITE);
+        painelPrincipal.setBorder(
+                javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16)
+        );
+
+        conteudo.setBackground(java.awt.Color.WHITE);
+        painelPrincipal.add(conteudo, java.awt.BorderLayout.CENTER);
+
+        JPanel painelBotoes = new JPanel(
+                new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0)
+        );
+        painelBotoes.setBackground(java.awt.Color.WHITE);
+
+        BotaoArredondado btnCancelar = new BotaoArredondado("Cancelar");
+        BotaoArredondado btnConfirmar = new BotaoArredondado(textoConfirmar);
+
+        java.awt.Dimension tamanhoBotao = new java.awt.Dimension(110, 36);
+        btnCancelar.setPreferredSize(tamanhoBotao);
+        btnConfirmar.setPreferredSize(tamanhoBotao);
+
+        boolean[] confirmado = {false};
+
+        btnCancelar.addActionListener(e -> dialogo.dispose());
+
+        btnConfirmar.addActionListener(e -> {
+            confirmado[0] = true;
+            dialogo.dispose();
+        });
+
+        painelBotoes.add(btnCancelar);
+        painelBotoes.add(btnConfirmar);
+
+        painelPrincipal.add(painelBotoes, java.awt.BorderLayout.SOUTH);
+
+        dialogo.setContentPane(painelPrincipal);
+        dialogo.setSize(largura, altura);
+        dialogo.setResizable(false);
+        dialogo.setLocationRelativeTo(this);
+        dialogo.setVisible(true);
+
+        return confirmado[0];
+    }
+    
+    private void excluirPostagem(PostCard card) {
+        int opcao = JOptionPane.showConfirmDialog(
+            this,
+            "Tem certeza de que deseja excluir esta postagem?",
+            "Excluir postagem",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+
+        if (opcao != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        int codigoUsuario = Sessao.getUsuarioLogado().getCodigo();
+        card.definirOcupado(true);
+
+        new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return postDAO.excluir(card.getCodigoPost(), codigoUsuario);
+            }
+
+            @Override
+            protected void done() {
+                card.definirOcupado(false);
+
+                try {
+                    if (!get()) {
+                        JOptionPane.showMessageDialog(
+                            TelaPerfil.this,
+                            "Não foi possível excluir a postagem."
+                        );
+                        return;
+                    }
+
+                    postsPorCodigo.remove(card.getCodigoPost());
+                    carregarPostagens();
+
+                    JOptionPane.showMessageDialog(
+                        TelaPerfil.this,
+                        "Postagem excluída com sucesso."
+                    );
+                } catch (Exception e) {
+                    logger.log(
+                        java.util.logging.Level.SEVERE,
+                        "Erro ao excluir postagem.",
+                        e
+                    );
+
+                    JOptionPane.showMessageDialog(
+                        TelaPerfil.this,
+                        "Ocorreu um erro ao excluir a postagem."
+                    );
+                }
+            }
+        }.execute();
+    }
+    
+    private void alternarCurtida(PostCard card) {
+        if (!Sessao.estaLogado()) {
+            return;
+        }
+
+        int codigoUsuario = Sessao.getUsuarioLogado().getCodigo();
+        int codigoPost = card.getCodigoPost();
+
+        card.definirOcupado(true);
+
+        new SwingWorker<CurtidaService.Resultado, Void>() {
+            @Override
+            protected CurtidaService.Resultado doInBackground() {
+                return curtidaService.alternar(codigoPost, codigoUsuario);
+            }
+
+            @Override
+            protected void done() {
+                card.definirOcupado(false);
+
+                try {
+                    CurtidaService.Resultado resultado = get();
+
+                    card.atualizarCurtida(resultado.curtido(), resultado.total());
+
+                    Post post = postsPorCodigo.get(codigoPost);
+                    if (post != null) {
+                        post.setTotalCurtidas(resultado.total());
+                    }
+                } catch (Exception e) {
+                    logger.log(
+                            java.util.logging.Level.SEVERE,
+                            "Erro ao atualizar curtida.",
+                            e
+                    );
+
+                    JOptionPane.showMessageDialog(
+                            TelaPerfil.this,
+                            "Não foi possível atualizar a curtida."
+                    );
+                }
+            }
+        }.execute();
+    }
+    
     private void btnNovoPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoPostActionPerformed
-        // TODO add your handling code here:
+        if (!Sessao.estaLogado()) {
+            JOptionPane.showMessageDialog(this, "Faça login para publicar.");
+            return;
+        }
+
+        
+        AreaTextoArredondada campoTexto = new AreaTextoArredondada(6, 35);
+        campoTexto.definirTamanho(420, 180);
+
+        JPanel painel = new JPanel();
+        painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
+        painel.setBackground(Color.WHITE);
+
+        JLabel lblConteudo = new JLabel("Conteúdo do post:");
+        lblConteudo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        campoTexto.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        painel.add(lblConteudo);
+        painel.add(Box.createVerticalStrut(8));
+        painel.add(campoTexto);
+
+        boolean confirmado = mostrarDialogoFormulario(
+                "Nova postagem",
+                painel,
+                "Publicar",
+                480,
+                300
+        );
+
+        if (!confirmado) {
+            return;
+        }
+
+        String conteudo = campoTexto.getText().trim();
+
+        if (conteudo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Digite o conteúdo da postagem.");
+            return;
+        }
+
+        try {
+            Post post = new Post(
+                    conteudo,
+                    Sessao.getUsuarioLogado().getCodigo()
+            );
+
+            postDAO.cadastrar(post);
+            carregarPostagens();
+
+            JOptionPane.showMessageDialog(this, "Postagem publicada com sucesso.");
+
+        } catch (Exception e) {
+            logger.log(
+                    java.util.logging.Level.SEVERE,
+                    "Erro ao publicar postagem.",
+                    e
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Não foi possível publicar a postagem."
+            );
+        }
     }//GEN-LAST:event_btnNovoPostActionPerformed
 
     private void lblSairMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSairMouseClicked
-        TelaLogin telaLogin = new TelaLogin();
-        telaLogin.setVisible(true);
-        this.dispose();
+        Sessao.encerrar();
+        new TelaLogin().setVisible(true);
+        dispose();
     }//GEN-LAST:event_lblSairMouseClicked
 
     private void lblFeedMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblFeedMouseClicked
@@ -261,6 +796,197 @@ public class TelaPerfil extends javax.swing.JFrame {
         telaBenck.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_lblBenchmarkMouseClicked
+
+    private void btnEditarPerfilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarPerfilActionPerformed
+        Usuario usuario = Sessao.getUsuarioLogado();
+
+        if (usuario == null) {
+            JOptionPane.showMessageDialog(this, "Faça login para editar o perfil.");
+            return;
+        }
+
+        CampoTextoArredondado campoNome = new CampoTextoArredondado();
+        campoNome.setText(usuario.getNome());
+        campoNome.setColumns(25);
+        campoNome.setPreferredSize(new java.awt.Dimension(360, 36));
+        
+        AreaTextoArredondada campoBio = new AreaTextoArredondada(4, 25);
+        campoBio.setText(
+                usuario.getBiografia() == null ? "" : usuario.getBiografia()
+        );
+        campoBio.definirTamanho(360, 90);
+
+
+        JLabel lblFotoSelecionada = new JLabel(
+                usuario.getFotoPerfil() == null
+                        ? "Nenhuma foto selecionada"
+                        : usuario.getFotoPerfil()
+        );
+
+        
+        BotaoArredondado btnSelecionarFoto = new BotaoArredondado("Selecionar foto");
+
+        novaFotoPerfil = usuario.getFotoPerfil();
+
+        btnSelecionarFoto.addActionListener(e -> {
+            JFileChooser seletor = new JFileChooser();
+            seletor.setDialogTitle("Selecionar foto de perfil");
+            seletor.setFileFilter(new FileNameExtensionFilter(
+                    "Imagens (JPG, PNG, GIF)",
+                    "jpg", "jpeg", "png", "gif"
+            ));
+
+            if (seletor.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                novaFotoPerfil = seletor.getSelectedFile().getAbsolutePath();
+                lblFotoSelecionada.setText(seletor.getSelectedFile().getName());
+            }
+        });
+
+        
+        JPanel painel = new JPanel();
+        painel.setBackground(java.awt.Color.WHITE);
+        painel.setLayout(new javax.swing.BoxLayout(
+                painel, javax.swing.BoxLayout.Y_AXIS
+        ));
+
+        campoNome.setMaximumSize(new java.awt.Dimension(
+                Integer.MAX_VALUE, 34
+        ));
+        campoNome.setPreferredSize(new java.awt.Dimension(360, 34));
+
+        painel.add(new JLabel("Nome"));
+        painel.add(javax.swing.Box.createVerticalStrut(5));
+        painel.add(campoNome);
+        painel.add(javax.swing.Box.createVerticalStrut(12));
+        painel.add(new JLabel("Biografia"));
+        painel.add(javax.swing.Box.createVerticalStrut(5));
+        painel.add(campoBio);
+        painel.add(javax.swing.Box.createVerticalStrut(12));
+        painel.add(new JLabel("Foto de perfil"));
+        painel.add(lblFotoSelecionada);
+        painel.add(javax.swing.Box.createVerticalStrut(5));
+        painel.add(btnSelecionarFoto);
+
+        boolean confirmado = mostrarDialogoFormulario(
+                "Editar perfil",
+                painel,
+                "Salvar",
+                440,
+                400
+        );
+
+        if (!confirmado) {
+            return;
+        }
+
+
+        try {
+            usuario.atualizarPerfil(
+                    campoNome.getText(),
+                    campoBio.getText(),
+                    novaFotoPerfil
+            );
+
+            if (!usuarioDAO.atualizarPerfil(usuario)) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Não foi possível atualizar o perfil no banco de dados."
+                );
+                return;
+            }
+
+            carregarDadosPerfil();
+            configurarAvatar();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Perfil atualizado com sucesso."
+            );
+
+        } catch (RuntimeException | java.sql.SQLException e) {
+            logger.log(
+                    java.util.logging.Level.SEVERE,
+                    "Erro ao atualizar perfil.",
+                    e
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Não foi possível atualizar o perfil: " + e.getMessage()
+            );
+        }
+    }//GEN-LAST:event_btnEditarPerfilActionPerformed
+
+    private void btnDeletarContaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeletarContaActionPerformed
+        JPanel painelConfirmacao = new JPanel(new java.awt.BorderLayout(0, 8));
+        painelConfirmacao.setBackground(java.awt.Color.WHITE);
+
+        JLabel mensagem = new JLabel(
+                "<html>Tem certeza de que deseja excluir sua conta?"
+                + "<br>Essa ação não poderá ser desfeita.</html>"
+        );
+        painelConfirmacao.add(mensagem, java.awt.BorderLayout.CENTER);
+
+        boolean confirmado = mostrarDialogoFormulario(
+                "Excluir conta",
+                painelConfirmacao,
+                "Excluir",
+                440,
+                180
+        );
+
+        if (!confirmado) {
+            return;
+        }
+
+
+        int codigoUsuario = Sessao.getUsuarioLogado().getCodigo();
+        btnDeletarConta.setEnabled(false);
+
+        new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return usuarioDAO.excluir(codigoUsuario);
+            }
+
+            @Override
+            protected void done() {
+                btnDeletarConta.setEnabled(true);
+
+                try {
+                    if (!get()) {
+                        JOptionPane.showMessageDialog(
+                            TelaPerfil.this,
+                            "Não foi possível excluir a conta."
+                        );
+                        return;
+                    }
+
+                    Sessao.encerrar();
+
+                    JOptionPane.showMessageDialog(
+                        null,
+                        "Conta excluída com sucesso."
+                    );
+
+                    TelaPerfil.this.dispose();
+                    new TelaLogin().setVisible(true);
+
+                } catch (Exception e) {
+                    logger.log(
+                        java.util.logging.Level.SEVERE,
+                        "Erro ao excluir conta.",
+                        e
+                    );
+
+                    JOptionPane.showMessageDialog(
+                        TelaPerfil.this,
+                        "Não foi possível excluir a conta. Verifique se existem dados relacionados que impedem a exclusão."
+                    );
+                }
+            }
+        }.execute();
+    }//GEN-LAST:event_btnDeletarContaActionPerformed
 
     /**
      * @param args the command line arguments
