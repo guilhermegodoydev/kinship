@@ -12,7 +12,12 @@ import com.mycompany.kinship.ui.PainelArredondado;
 import com.mycompany.kinship.ui.CampoSenhaArredondado;
 import com.mycompany.kinship.ui.CampoTextoArredondado;
 import com.mycompany.kinship.ui.Tema;
+import java.awt.Color;
+import java.awt.Font;
+import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
         
 /**
@@ -23,12 +28,28 @@ public class TelaCadastro extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaCadastro.class.getName());
     private final AutenticacaoService authService = new AutenticacaoService();
+    private final Map<String, JLabel> labelsErro = new HashMap<>();
+    private final Map<String, JComponent> camposErro = new HashMap<>();
     
     /**
      * Creates new form TelaCadastro
      */
     public TelaCadastro() {
         initComponents();
+        
+        labelsErro.put("nome", lblErroNome);
+        labelsErro.put("nickname", lblErroNickname);
+        labelsErro.put("email", lblErroEmail);
+        labelsErro.put("senha", lblErroSenha);
+        labelsErro.put("confirmarSenha", lblErroConfirmarSenha);
+
+        camposErro.put("nome", txtNome);
+        camposErro.put("nickname", txtNomeUsuario);
+        camposErro.put("email", txtEmail);
+        camposErro.put("senha", txtSenha);
+        camposErro.put("confirmarSenha", txtConfirmarSenha);
+
+        limparErros();
     }
 
     /**
@@ -46,32 +67,34 @@ public class TelaCadastro extends javax.swing.JFrame {
         lblTitulo = new javax.swing.JLabel();
         lblSubtitulo = new javax.swing.JLabel();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 32767));
-        panelEmail = new javax.swing.JPanel();
-        lblEmail = new javax.swing.JLabel();
-        txtEmail = new CampoTextoArredondado();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 32767));
-        panelSenha = new javax.swing.JPanel();
-        lblSenha = new javax.swing.JLabel();
-        txtSenha = new CampoSenhaArredondado();
-        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 32767));
-        panelConfirmarSenha = new javax.swing.JPanel();
-        lblConfirmarSenha = new javax.swing.JLabel();
-        txtConfirmarSenha = new CampoSenhaArredondado();
-        filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 32767));
         panelNome = new javax.swing.JPanel();
-        txtNome = new CampoTextoArredondado();
         lblNome = new javax.swing.JLabel();
-        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 32767));
+        txtNome = new CampoTextoArredondado();
+        lblErroNome = new javax.swing.JLabel();
         panelNomeUsuario = new javax.swing.JPanel();
         lblNomeUsuario = new javax.swing.JLabel();
         txtNomeUsuario = new CampoTextoArredondado();
-        filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 32767));
+        lblErroNickname = new javax.swing.JLabel();
+        panelEmail = new javax.swing.JPanel();
+        lblEmail = new javax.swing.JLabel();
+        txtEmail = new CampoTextoArredondado();
+        lblErroEmail = new javax.swing.JLabel();
+        panelSenha = new javax.swing.JPanel();
+        lblSenha = new javax.swing.JLabel();
+        txtSenha = new CampoSenhaArredondado();
+        lblErroSenha = new javax.swing.JLabel();
+        panelConfirmarSenha = new javax.swing.JPanel();
+        lblConfirmarSenha = new javax.swing.JLabel();
+        txtConfirmarSenha = new CampoSenhaArredondado();
+        lblErroConfirmarSenha = new javax.swing.JLabel();
+        filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 15), new java.awt.Dimension(5, 15), new java.awt.Dimension(5, 32767));
         panelBotoes = new javax.swing.JPanel();
         btnCadastrar = new BotaoArredondado("Entrar");
         lblEntrar = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Cadastro");
+        setResizable(false);
 
         jPanel1.setBackground(Tema.FUNDO);
 
@@ -100,6 +123,43 @@ public class TelaCadastro extends javax.swing.JFrame {
         panelForm.add(panelHeader);
         panelForm.add(filler1);
 
+        panelNome.setOpaque(false);
+        panelNome.setLayout(new java.awt.BorderLayout());
+
+        lblNome.setForeground(Tema.TEXTO);
+        lblNome.setText("Nome:");
+        panelNome.add(lblNome, java.awt.BorderLayout.NORTH);
+
+        txtNome.setBackground(new java.awt.Color(204, 204, 204));
+        txtNome.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtNome.setPreferredSize(new java.awt.Dimension(64, 30));
+        panelNome.add(txtNome, java.awt.BorderLayout.CENTER);
+
+        lblErroNome.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroNome.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroNome.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelNome.add(lblErroNome, java.awt.BorderLayout.SOUTH);
+
+        panelForm.add(panelNome);
+
+        panelNomeUsuario.setOpaque(false);
+        panelNomeUsuario.setLayout(new java.awt.BorderLayout());
+
+        lblNomeUsuario.setText("Nome de usuário:");
+        panelNomeUsuario.add(lblNomeUsuario, java.awt.BorderLayout.NORTH);
+
+        txtNomeUsuario.setBackground(new java.awt.Color(204, 204, 204));
+        txtNomeUsuario.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtNomeUsuario.setPreferredSize(new java.awt.Dimension(64, 30));
+        panelNomeUsuario.add(txtNomeUsuario, java.awt.BorderLayout.CENTER);
+
+        lblErroNickname.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroNickname.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroNickname.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelNomeUsuario.add(lblErroNickname, java.awt.BorderLayout.PAGE_END);
+
+        panelForm.add(panelNomeUsuario);
+
         panelEmail.setOpaque(false);
         panelEmail.setLayout(new java.awt.BorderLayout());
 
@@ -109,12 +169,17 @@ public class TelaCadastro extends javax.swing.JFrame {
 
         txtEmail.setBackground(new java.awt.Color(204, 204, 204));
         txtEmail.setMinimumSize(new java.awt.Dimension(64, 25));
-        txtEmail.setPreferredSize(new java.awt.Dimension(64, 25));
+        txtEmail.setPreferredSize(new java.awt.Dimension(64, 30));
         txtEmail.addActionListener(this::txtEmailActionPerformed);
         panelEmail.add(txtEmail, java.awt.BorderLayout.CENTER);
 
+        lblErroEmail.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroEmail.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroEmail.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        lblErroEmail.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelEmail.add(lblErroEmail, java.awt.BorderLayout.SOUTH);
+
         panelForm.add(panelEmail);
-        panelForm.add(filler2);
 
         panelSenha.setOpaque(false);
         panelSenha.setLayout(new java.awt.BorderLayout());
@@ -125,12 +190,17 @@ public class TelaCadastro extends javax.swing.JFrame {
 
         txtSenha.setBackground(new java.awt.Color(204, 204, 204));
         txtSenha.setMinimumSize(new java.awt.Dimension(64, 25));
-        txtSenha.setPreferredSize(new java.awt.Dimension(64, 25));
+        txtSenha.setPreferredSize(new java.awt.Dimension(64, 30));
         txtSenha.addActionListener(this::txtSenhaActionPerformed);
         panelSenha.add(txtSenha, java.awt.BorderLayout.CENTER);
 
+        lblErroSenha.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroSenha.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroSenha.setMinimumSize(new java.awt.Dimension(0, 16));
+        lblErroSenha.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelSenha.add(lblErroSenha, java.awt.BorderLayout.SOUTH);
+
         panelForm.add(panelSenha);
-        panelForm.add(filler3);
 
         panelConfirmarSenha.setOpaque(false);
         panelConfirmarSenha.setLayout(new java.awt.BorderLayout());
@@ -140,39 +210,14 @@ public class TelaCadastro extends javax.swing.JFrame {
 
         txtConfirmarSenha.setBackground(new java.awt.Color(204, 204, 204));
         txtConfirmarSenha.setMinimumSize(new java.awt.Dimension(64, 25));
-        txtConfirmarSenha.setPreferredSize(new java.awt.Dimension(64, 25));
+        txtConfirmarSenha.setPreferredSize(new java.awt.Dimension(64, 30));
         panelConfirmarSenha.add(txtConfirmarSenha, java.awt.BorderLayout.CENTER);
 
+        lblErroConfirmarSenha.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroConfirmarSenha.setForeground(new java.awt.Color(255, 51, 51));
+        panelConfirmarSenha.add(lblErroConfirmarSenha, java.awt.BorderLayout.SOUTH);
+
         panelForm.add(panelConfirmarSenha);
-        panelForm.add(filler4);
-
-        panelNome.setOpaque(false);
-        panelNome.setLayout(new java.awt.BorderLayout());
-
-        txtNome.setBackground(new java.awt.Color(204, 204, 204));
-        txtNome.setMinimumSize(new java.awt.Dimension(64, 25));
-        txtNome.setPreferredSize(new java.awt.Dimension(64, 25));
-        panelNome.add(txtNome, java.awt.BorderLayout.CENTER);
-
-        lblNome.setForeground(Tema.TEXTO);
-        lblNome.setText("Nome:");
-        panelNome.add(lblNome, java.awt.BorderLayout.NORTH);
-
-        panelForm.add(panelNome);
-        panelForm.add(filler5);
-
-        panelNomeUsuario.setOpaque(false);
-        panelNomeUsuario.setLayout(new java.awt.BorderLayout());
-
-        lblNomeUsuario.setText("Nome de usuário:");
-        panelNomeUsuario.add(lblNomeUsuario, java.awt.BorderLayout.NORTH);
-
-        txtNomeUsuario.setBackground(new java.awt.Color(204, 204, 204));
-        txtNomeUsuario.setMinimumSize(new java.awt.Dimension(64, 25));
-        txtNomeUsuario.setPreferredSize(new java.awt.Dimension(64, 25));
-        panelNomeUsuario.add(txtNomeUsuario, java.awt.BorderLayout.CENTER);
-
-        panelForm.add(panelNomeUsuario);
         panelForm.add(filler6);
 
         panelBotoes.setOpaque(false);
@@ -202,25 +247,24 @@ public class TelaCadastro extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(157, 157, 157)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(195, Short.MAX_VALUE)
                 .addComponent(panelForm, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(199, Short.MAX_VALUE))
+                .addGap(186, 186, 186))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(panelForm, javax.swing.GroupLayout.PREFERRED_SIZE, 454, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 85, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(55, Short.MAX_VALUE)
+                .addComponent(panelForm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -238,7 +282,7 @@ public class TelaCadastro extends javax.swing.JFrame {
                 txtNomeUsuario.getText(),
                 txtEmail.getText(),
                 new String(txtSenha.getPassword()),
-                new String(lblConfirmarSenha.getText())
+                new String(txtConfirmarSenha.getPassword())
             );
 
             JOptionPane.showMessageDialog(this,
@@ -263,18 +307,38 @@ public class TelaCadastro extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
+    private void limparErros() {
+        for (JLabel label : labelsErro.values()) {
+            label.setText(" ");
+        }
+    }
+    
     private void mostrarErros(Map<String, String> erros) {
-        JOptionPane.showMessageDialog(this,
-                String.join("\n", erros.values()),
-                "Verifique os campos", JOptionPane.WARNING_MESSAGE);
+        limparErros();
 
-        // quando criar as labels, troque o popup por isto:
-        // lblErroNome.setText(erros.getOrDefault("nome", ""));
-        // lblErroNickname.setText(erros.getOrDefault("nickname", ""));
-        // lblErroEmail.setText(erros.getOrDefault("email", ""));
-        // lblErroSenha.setText(erros.getOrDefault("senha", ""));
-        // lblErroConfirmarSenha.setText(erros.getOrDefault("confirmarSenha", ""));
-        // erros "geral" ficam no popup
+        StringBuilder semLabel = new StringBuilder();
+        JComponent primeiro = null;
+
+        for (Map.Entry<String, String> erro : erros.entrySet()) {
+            JLabel label = labelsErro.get(erro.getKey());
+            if (label != null) {
+                label.setText(erro.getValue());
+                if (primeiro == null) {
+                    primeiro = camposErro.get(erro.getKey());
+                }
+            } else {
+                semLabel.append(erro.getValue()).append('\n');
+            }
+        }
+
+        if (semLabel.length() > 0) {
+            JOptionPane.showMessageDialog(this, semLabel.toString().trim(),
+                    "Verifique os campos", JOptionPane.WARNING_MESSAGE);
+        }
+
+        if (primeiro != null) {
+            primeiro.requestFocus();
+        }
     }
     
     private void lblEntrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblEntrarMouseClicked
@@ -319,15 +383,16 @@ public class TelaCadastro extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCadastrar;
     private javax.swing.Box.Filler filler1;
-    private javax.swing.Box.Filler filler2;
-    private javax.swing.Box.Filler filler3;
-    private javax.swing.Box.Filler filler4;
-    private javax.swing.Box.Filler filler5;
     private javax.swing.Box.Filler filler6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblConfirmarSenha;
     private javax.swing.JLabel lblEmail;
     private javax.swing.JLabel lblEntrar;
+    private javax.swing.JLabel lblErroConfirmarSenha;
+    private javax.swing.JLabel lblErroEmail;
+    private javax.swing.JLabel lblErroNickname;
+    private javax.swing.JLabel lblErroNome;
+    private javax.swing.JLabel lblErroSenha;
     private javax.swing.JLabel lblNome;
     private javax.swing.JLabel lblNomeUsuario;
     private javax.swing.JLabel lblSenha;

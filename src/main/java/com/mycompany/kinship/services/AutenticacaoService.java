@@ -20,48 +20,42 @@ public class AutenticacaoService {
         senha = senha == null ? "" : senha;
         confirmacao = confirmacao == null ? "" : confirmacao;
 
-        Map<String, String> erros = new LinkedHashMap<>();
+        Map<String, String> erros =
+                new LinkedHashMap<>(Usuario.validarDadosCadastro(nome, nickname, email));
 
-        
-        if (senha.length() < 8) {
+        if (senha.isEmpty()) {
+            erros.put("senha", "Informe a senha.");
+        } else if (senha.length() < 8) {
             erros.put("senha", "A senha deve ter no mínimo 8 caracteres.");
         } else if (senha.length() > 72) {
             erros.put("senha", "A senha deve ter no máximo 72 caracteres.");
         }
-        if (!senha.equals(confirmacao)) {
+
+        if (confirmacao.isEmpty()) {
+            erros.put("confirmarSenha", "Confirme a senha.");
+        } else if (!senha.equals(confirmacao)) {
             erros.put("confirmarSenha", "As senhas não coincidem.");
         }
 
-        
-        String hash = erros.isEmpty()
-                ? BCrypt.withDefaults().hashToString(12, senha.toCharArray())
-                : "-";
-
-        
-        Usuario usuario = null;
         try {
-            usuario = new Usuario(nome, nickname, email, hash);
-        } catch (DominioException e) {
-            erros.put(e.getCampo(), e.getMessage());
-        }
-
-       
-        if (usuario != null) {
-            try {
-                if (dao.buscarPorNickname(usuario.getNickname()) != null) {
-                    erros.put("nickname", "Este nickname já está em uso.");
-                }
-                if (dao.buscarPorEmail(usuario.getEmail()) != null) {
-                    erros.put("email", "Este e-mail já está cadastrado.");
-                }
-            } catch (SQLException e) {
-                throw new ErroDeAcessoException("Falha ao acessar o banco de dados.", e);
+            if (!erros.containsKey("nickname")
+                    && dao.buscarPorNickname(Usuario.normalizarNickname(nickname)) != null) {
+                erros.put("nickname", "Este nickname já está em uso.");
             }
+            if (!erros.containsKey("email")
+                    && dao.buscarPorEmail(Usuario.normalizarEmail(email)) != null) {
+                erros.put("email", "Este e-mail já está cadastrado.");
+            }
+        } catch (SQLException e) {
+            throw new ErroDeAcessoException("Falha ao acessar o banco de dados.", e);
         }
 
         if (!erros.isEmpty()) {
             throw new ValidacaoException(erros);
         }
+
+        String hash = BCrypt.withDefaults().hashToString(12, senha.toCharArray());
+        Usuario usuario = new Usuario(nome, nickname, email, hash);
 
         try {
             dao.cadastrar(usuario);
@@ -76,17 +70,26 @@ public class AutenticacaoService {
         return usuario;
     }
 
-    public Optional<Usuario> autenticar(String identificador, String senha) {
-        if (identificador == null || identificador.isBlank() || senha == null || senha.isEmpty()) {
-            return Optional.empty();
+    public Optional<Usuario> autenticar(String email, String senha) throws ValidacaoException {
+        Map<String, String> erros = new LinkedHashMap<>();
+
+        String emailNormalizado = null;
+        try {
+            emailNormalizado = Usuario.normalizarEmail(email);
+        } catch (DominioException e) {
+            erros.put("email", e.getMessage());
+        }
+
+        if (senha == null || senha.isEmpty()) {
+            erros.put("senha", "Informe a senha.");
+        }
+
+        if (!erros.isEmpty()) {
+            throw new ValidacaoException(erros);
         }
 
         try {
-            String id = identificador.trim();
-            Usuario usuario = id.contains("@")
-                    ? dao.buscarPorEmail(id.toLowerCase())
-                    : dao.buscarPorNickname(id);
-
+            Usuario usuario = dao.buscarPorEmail(emailNormalizado);
             if (usuario == null) {
                 return Optional.empty();
             }
