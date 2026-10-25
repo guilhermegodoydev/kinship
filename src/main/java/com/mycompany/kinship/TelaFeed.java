@@ -45,6 +45,8 @@ import javax.swing.SwingConstants;
 import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JTextField;
+import com.mycompany.kinship.ui.CampoTextoArredondado;
+import com.mycompany.kinship.ui.BotaoArredondado;
 
 public class TelaFeed extends javax.swing.JFrame {
     
@@ -643,15 +645,16 @@ public class TelaFeed extends javax.swing.JFrame {
         containerScroll = new javax.swing.JPanel();
         scrollComentarios = new javax.swing.JScrollPane();
         painelRodapeComentarios = new javax.swing.JPanel();
-        txtComentario = new javax.swing.JTextField();
+        txtComentario = new CampoTextoArredondado();
         lblErroComentario = new javax.swing.JLabel();
-        btnEnviarComentario = new javax.swing.JButton();
+        btnEnviarComentario = new BotaoArredondado("Publicar");
         jSeparator2 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Feed");
         setExtendedState(6);
         setMinimumSize(new java.awt.Dimension(700, 530));
+        setResizable(false);
         setSize(new java.awt.Dimension(700, 530));
 
         jPanel1.setBackground(Tema.FUNDO);
@@ -745,6 +748,7 @@ public class TelaFeed extends javax.swing.JFrame {
         panelContainerMenuLateral.setLayout(new java.awt.BorderLayout());
 
         panelMenuLateral.setBackground(Tema.FUNDO);
+        panelMenuLateral.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 15));
         panelMenuLateral.setOpaque(false);
         panelMenuLateral.setLayout(new javax.swing.BoxLayout(panelMenuLateral, javax.swing.BoxLayout.Y_AXIS));
 
@@ -873,6 +877,7 @@ public class TelaFeed extends javax.swing.JFrame {
         containerPainelComentarios.setOpaque(false);
         containerPainelComentarios.setLayout(new java.awt.BorderLayout());
 
+        painelComentario.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 15, 0, 0));
         painelComentario.setOpaque(false);
         painelComentario.setLayout(new javax.swing.BoxLayout(painelComentario, javax.swing.BoxLayout.Y_AXIS));
 
@@ -943,7 +948,7 @@ public class TelaFeed extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        pack();
+        setSize(new java.awt.Dimension(716, 539));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 

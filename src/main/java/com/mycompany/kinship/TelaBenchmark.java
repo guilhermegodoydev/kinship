@@ -9,6 +9,19 @@ import com.mycompany.kinship.ui.Tema;
 import com.mycompany.kinship.ui.ToggleArredondado;
 import com.mycompany.kinship.ui.BotaoArredondado;
 import com.mycompany.kinship.ui.TabelaArredondada;
+import com.mycompany.kinship.algoritmos.Algoritmo;
+import com.mycompany.kinship.dao.PostDAO;
+import com.mycompany.kinship.models.Post;
+import com.mycompany.kinship.services.BenchmarkService;
+import com.mycompany.kinship.services.Criterio;
+
+import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
 
 
 /**
@@ -18,12 +31,19 @@ import com.mycompany.kinship.ui.TabelaArredondada;
 public class TelaBenchmark extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaBenchmark.class.getName());
-
+    private SwingWorker<List<BenchmarkService.Resultado>, Void> workerBenchmark;
+    
     /**
      * Creates new form TelaBenchmark
      */
     public TelaBenchmark() {
         initComponents();
+        
+        jToggleButton2.setSelected(true);
+        jToggleButton5.setSelected(true);
+        jToggleButton8.setSelected(true);
+        
+        atualizarQuantidadePosts();
     }
 
     /**
@@ -299,6 +319,11 @@ public class TelaBenchmark extends javax.swing.JFrame {
         });
 
         jButton2.setText("Apagar Dados");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelConfigsLayout = new javax.swing.GroupLayout(panelConfigs);
         panelConfigs.setLayout(panelConfigsLayout);
@@ -312,6 +337,7 @@ public class TelaBenchmark extends javax.swing.JFrame {
                     .addComponent(btnExecutar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jSeparator1)
                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(panelConfigsLayout.createSequentialGroup()
                         .addGroup(panelConfigsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -326,8 +352,7 @@ public class TelaBenchmark extends javax.swing.JFrame {
                                     .addComponent(jToggleButton7)))
                             .addComponent(jLabel8)
                             .addComponent(jLabel9))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         panelConfigsLayout.setVerticalGroup(
@@ -359,7 +384,7 @@ public class TelaBenchmark extends javax.swing.JFrame {
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(56, Short.MAX_VALUE))
         );
 
         jPanel1.add(panelConfigs, java.awt.BorderLayout.WEST);
@@ -453,10 +478,120 @@ public class TelaBenchmark extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        pack();
+        setSize(new java.awt.Dimension(725, 614));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void atualizarQuantidadePosts() {
+        new SwingWorker<Integer, Void>() {
+            @Override
+            protected Integer doInBackground() {
+                return new BenchmarkService().contarPosts();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    jLabel9.setText(
+                            String.format(
+                                    java.util.Locale.forLanguageTag("pt-BR"),
+                                    "%,d posts no banco",
+                                    get()
+                            )
+                    );
+                } catch (Exception e) {
+                    jLabel9.setText("Não foi possível consultar os posts");
+                }
+            }
+        }.execute();
+    }
+
+    
+    private int obterQuantidadeSelecionada() {
+        if (jToggleButton1.isSelected()) {
+            return 1_000;
+        }
+        if (jToggleButton2.isSelected()) {
+            return 10_000;
+        }
+        if (jToggleButton3.isSelected()) {
+            return 50_000;
+        }
+        if (jToggleButton4.isSelected()) {
+            return 100_000;
+        }
+
+        throw new IllegalArgumentException("Selecione a quantidade de posts.");
+    }
+
+    private Criterio obterCriterioSelecionado() {
+        if (jToggleButton5.isSelected()) {
+            return Criterio.CURTIDAS;
+        }
+        if (jToggleButton6.isSelected()) {
+            return Criterio.DATA;
+        }
+        if (jToggleButton7.isSelected()) {
+            return Criterio.COMENTARIOS;
+        }
+
+        throw new IllegalArgumentException("Selecione o critério de ordenação.");
+    }
+
+    private BenchmarkService.TipoDados obterTipoDadosSelecionado() {
+        if (jToggleButton8.isSelected()) {
+            return BenchmarkService.TipoDados.ALEATORIO;
+        }
+        if (jToggleButton9.isSelected()) {
+            return BenchmarkService.TipoDados.QUASE_ORDENADO;
+        }
+        if (jToggleButton10.isSelected()) {
+            return BenchmarkService.TipoDados.INVERSO;
+        }
+
+        throw new IllegalArgumentException("Selecione o tipo de dados.");
+    }
+
+    private void exibirResultados(List<BenchmarkService.Resultado> resultados) {
+        DefaultTableModel modelo = (DefaultTableModel) tabelaAlgoritmos.getModel();
+        modelo.setRowCount(0);
+
+        NumberFormat numeros = NumberFormat.getIntegerInstance(new Locale("pt", "BR"));
+
+        for (BenchmarkService.Resultado resultado : resultados) {
+            modelo.addRow(new Object[]{
+                resultado.algoritmo(),
+                formatarTempo(resultado.nanos()),
+                numeros.format(resultado.comparacoes()),
+                numeros.format(resultado.trocas())
+            });
+        }
+    }
+
+    private String formatarTempo(long nanos) {
+        if (nanos >= 1_000_000_000L) {
+            return String.format(
+                    Locale.forLanguageTag("pt-BR"),
+                    "%.2f s",
+                    nanos / 1_000_000_000.0
+            );
+        }
+
+        if (nanos >= 1_000_000L) {
+            return String.format(
+                    Locale.forLanguageTag("pt-BR"),
+                    "%.2f ms",
+                    nanos / 1_000_000.0
+            );
+        }
+
+        return String.format(
+                Locale.forLanguageTag("pt-BR"),
+                "%.2f µs",
+                nanos / 1_000.0
+        );
+    }
+    
     private void lblSairMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSairMouseClicked
         TelaLogin telaLogin = new TelaLogin();
         telaLogin.setVisible(true);
@@ -480,13 +615,290 @@ public class TelaBenchmark extends javax.swing.JFrame {
     }//GEN-LAST:event_jToggleButton5ActionPerformed
 
     private void btnExecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExecutarActionPerformed
-        btnExecutar.setText("Executando...");
+        if (workerBenchmark != null && !workerBenchmark.isDone()) {
+            workerBenchmark.cancel(true);
+            btnExecutar.setEnabled(false);
+            btnExecutar.setText("Cancelando...");
+            return;
+        }
+
+        final int quantidade;
+
+        final Criterio criterio;
+        final BenchmarkService.TipoDados tipoDados;
+
+        try {
+            quantidade = obterQuantidadeSelecionada();
+            criterio = obterCriterioSelecionado();
+            tipoDados = obterTipoDadosSelecionado();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(
+                this,
+                e.getMessage(),
+                "Seleção necessária",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        btnExecutar.setText("Cancelar");
+        tabelaAlgoritmos.setEnabled(false);
+
+        workerBenchmark = new SwingWorker<>() {
+            @Override
+            protected List<BenchmarkService.Resultado> doInBackground()
+                    throws Exception {
+                PostDAO postDAO = new PostDAO();
+                List<Post> posts = postDAO.listarParaFeed(quantidade);
+
+                if (posts.size() < quantidade) {
+                    throw new IllegalStateException(
+                        "Há apenas " + posts.size()
+                        + " posts disponíveis no banco. "
+                        + "Gere mais dados para executar esse teste."
+                    );
+                }
+
+                return new BenchmarkService().executar(
+                    posts,
+                    criterio,
+                    tipoDados
+                );
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    if (isCancelled()) {
+                        JOptionPane.showMessageDialog(
+                            TelaBenchmark.this,
+                            "A execução do benchmark foi cancelada.",
+                            "Benchmark cancelado",
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
+                        return;
+                    }
+
+                    List<BenchmarkService.Resultado> resultados = get();
+                    exibirResultados(resultados);
+
+                } catch (java.util.concurrent.CancellationException e) {
+                    JOptionPane.showMessageDialog(
+                        TelaBenchmark.this,
+                        "A execução do benchmark foi cancelada.",
+                        "Benchmark cancelado",
+                        JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                } catch (java.util.concurrent.ExecutionException e) {
+                    Throwable causa = e.getCause();
+
+                    if (causa instanceof java.util.concurrent.CancellationException) {
+                        JOptionPane.showMessageDialog(
+                            TelaBenchmark.this,
+                            "A execução do benchmark foi cancelada.",
+                            "Benchmark cancelado",
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
+                    } else {
+                        JOptionPane.showMessageDialog(
+                            TelaBenchmark.this,
+                            causa != null && causa.getMessage() != null
+                                ? causa.getMessage()
+                                : "Não foi possível executar o benchmark.",
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+
+                } finally {
+                    btnExecutar.setText("Executar");
+                    btnExecutar.setEnabled(true);
+                    tabelaAlgoritmos.setEnabled(true);
+                    workerBenchmark = null;
+                }
+            }
+        };
+
+        workerBenchmark.execute();
     }//GEN-LAST:event_btnExecutarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        final int quantidade;
+
+        try {
+            Integer quantidadeSelecionada = selecionarQuantidadeParaGerar();
+
+            if (quantidadeSelecionada == null) {
+                return;
+            }
+            
+            quantidade = quantidadeSelecionada;
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "Configuração incompleta",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int confirmacao = JOptionPane.showConfirmDialog(
+                this,
+                "Serão gerados " + quantidade
+                        + " posts fictícios. A massa anterior de benchmark será substituída. Continuar?",
+                "Gerar dados de benchmark",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (confirmacao != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        jButton1.setEnabled(false);
+        jButton2.setEnabled(false);
+        btnExecutar.setEnabled(false);
+        jButton1.setText("Gerando...");
+
+        new SwingWorker<Integer, Void>() {
+            @Override
+            protected Integer doInBackground() {
+                return new BenchmarkService().gerarDados(quantidade);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    int gerados = get();
+
+                    JOptionPane.showMessageDialog(
+                            TelaBenchmark.this,
+                            String.format(
+                                    java.util.Locale.forLanguageTag("pt-BR"),
+                                    "%,d posts gerados com sucesso.",
+                                    gerados
+                            )
+                    );
+
+                } catch (Exception e) {
+                    mostrarErroOperacao(
+                            e,
+                            "Não foi possível gerar a massa de dados."
+                    );
+                } finally {
+                    jButton1.setEnabled(true);
+                    jButton2.setEnabled(true);
+                    btnExecutar.setEnabled(true);
+                    jButton1.setText("Gerar Dados");
+                    atualizarQuantidadePosts();
+                }
+            }
+        }.execute();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    
+    private Integer selecionarQuantidadeParaGerar() {
+        String[] opcoes = {
+            "1 mil",
+            "10 mil",
+            "100 mil",
+            "500 mil",
+            "1 milhão"
+        };
+
+        Object selecionada = JOptionPane.showInputDialog(
+            this,
+            "Selecione a quantidade de posts que deseja gerar:",
+            "Gerar dados de benchmark",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opcoes,
+            opcoes[1]
+        );
+
+        if (selecionada == null) {
+            return null;
+        }
+
+        return switch (selecionada.toString()) {
+            case "1 mil" -> 1_000;
+            case "10 mil" -> 10_000;
+            case "100 mil" -> 100_000;
+            case "500 mil" -> 500_000;
+            case "1 milhão" -> 1_000_000;
+            default -> throw new IllegalArgumentException(
+                "Quantidade de posts inválida."
+            );
+        };
+    }
+
+    
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+            int confirmacao = JOptionPane.showConfirmDialog(
+                this,
+                "Apagar os dados gerados para o benchmark?",
+                "Confirmar exclusão",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (confirmacao != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        jButton1.setEnabled(false);
+        jButton2.setEnabled(false);
+        btnExecutar.setEnabled(false);
+
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                new BenchmarkService().apagarDados();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    get();
+                    JOptionPane.showMessageDialog(
+                            TelaBenchmark.this,
+                            "Dados de benchmark apagados."
+                    );
+
+                    DefaultTableModel modelo =
+                            (DefaultTableModel) tabelaAlgoritmos.getModel();
+                    modelo.setRowCount(0);
+
+                } catch (Exception e) {
+                    mostrarErroOperacao(e, "Não foi possível apagar os dados.");
+                } finally {
+                    jButton1.setEnabled(true);
+                    jButton2.setEnabled(true);
+                    btnExecutar.setEnabled(true);
+                    atualizarQuantidadePosts();
+                }
+            }
+        }.execute();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void mostrarErroOperacao(Exception e, String mensagemPadrao) {
+        Throwable causa = e.getCause() != null ? e.getCause() : e;
+        String mensagem = causa.getMessage();
+
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem != null ? mensagem : mensagemPadrao,
+                "Erro",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+    
     /**
      * @param args the command line arguments
      */

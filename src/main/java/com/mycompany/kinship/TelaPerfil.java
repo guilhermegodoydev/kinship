@@ -23,7 +23,7 @@ public class TelaPerfil extends javax.swing.JFrame {
     public TelaPerfil() {
         initComponents();
         
-        //this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        
     }
 
     /**
@@ -139,6 +139,7 @@ public class TelaPerfil extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        painelBotoesAcoes.setOpaque(false);
         painelBotoesAcoes.setLayout(new java.awt.GridLayout(1, 0, 50, 0));
 
         btnNovoPost.setText("Novo Post");
@@ -163,6 +164,7 @@ public class TelaPerfil extends javax.swing.JFrame {
         jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.Y_AXIS));
         scrollPostagens.setViewportView(jPanel6);
 
+        painelInformacoesPerfil.setOpaque(false);
         painelInformacoesPerfil.setLayout(new java.awt.BorderLayout(20, 0));
 
         foto.setBackground(new java.awt.Color(255, 204, 153));
@@ -181,6 +183,7 @@ public class TelaPerfil extends javax.swing.JFrame {
 
         painelInformacoesPerfil.add(foto, java.awt.BorderLayout.WEST);
 
+        panelInformacoes.setOpaque(false);
         panelInformacoes.setLayout(new javax.swing.BoxLayout(panelInformacoes, javax.swing.BoxLayout.Y_AXIS));
 
         lblNomeUsuario.setText("maria_silva");
@@ -233,7 +236,7 @@ public class TelaPerfil extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        pack();
+        setSize(new java.awt.Dimension(776, 469));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 

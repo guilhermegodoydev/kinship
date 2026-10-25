@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 public class ComentarioItem extends JPanel {
-    public static final int LARGURA_TEXTO = 200;
+    public static final int LARGURA_TEXTO = 160;
 
     private static final Color VERMELHO = new Color(224, 36, 94);
     private static final IconeCoracao CORACAO_VAZIO = new IconeCoracao(14, false, Tema.TEXTO_SUAVE);
