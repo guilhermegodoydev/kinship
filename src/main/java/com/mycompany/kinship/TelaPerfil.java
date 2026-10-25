@@ -36,43 +36,36 @@ public class TelaPerfil extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        panelHeader1 = new javax.swing.JPanel();
+        painelHeader = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         lblFeed = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         lblBenchmark = new javax.swing.JLabel();
         lblSair = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        painelBotoesAcoes = new javax.swing.JPanel();
+        btnNovoPost = new BotaoArredondado("Novo Post");
+        btnEditarPerfil = new BotaoArredondado("Editar Perfil");
+        btnDeletarConta = new BotaoArredondado("Deletar Conta");
         jSeparator1 = new javax.swing.JSeparator();
         scrollPostagens = new javax.swing.JScrollPane();
         jPanel6 = new javax.swing.JPanel();
-        jPanel7 = new PainelArredondado()
-        ;
-        jPanel8 = new javax.swing.JPanel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jSeparator2 = new javax.swing.JSeparator();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
+        painelInformacoesPerfil = new javax.swing.JPanel();
+        foto = new javax.swing.JPanel();
+        panelInformacoes = new javax.swing.JPanel();
+        lblNomeUsuario = new javax.swing.JLabel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5), new java.awt.Dimension(32767, 5));
+        lblBio = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Perfil");
         setBackground(Tema.FUNDO);
         setExtendedState(6);
         setLocationByPlatform(true);
-        setPreferredSize(new java.awt.Dimension(0, 0));
         setState(6);
 
         jPanel1.setBackground(Tema.FUNDO);
 
-        panelHeader1.setBackground(new java.awt.Color(255, 204, 153));
+        painelHeader.setBackground(new java.awt.Color(255, 204, 153));
 
         jPanel4.setBackground(new java.awt.Color(255, 204, 153));
 
@@ -129,48 +122,34 @@ public class TelaPerfil extends javax.swing.JFrame {
                     .addComponent(lblSair)))
         );
 
-        javax.swing.GroupLayout panelHeader1Layout = new javax.swing.GroupLayout(panelHeader1);
-        panelHeader1.setLayout(panelHeader1Layout);
-        panelHeader1Layout.setHorizontalGroup(
-            panelHeader1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelHeader1Layout.createSequentialGroup()
-                .addContainerGap(189, Short.MAX_VALUE)
+        javax.swing.GroupLayout painelHeaderLayout = new javax.swing.GroupLayout(painelHeader);
+        painelHeader.setLayout(painelHeaderLayout);
+        painelHeaderLayout.setHorizontalGroup(
+            painelHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelHeaderLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        panelHeader1Layout.setVerticalGroup(
-            panelHeader1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelHeader1Layout.createSequentialGroup()
+        painelHeaderLayout.setVerticalGroup(
+            painelHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelHeaderLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        jPanel5.setBackground(new java.awt.Color(255, 204, 153));
+        painelBotoesAcoes.setLayout(new java.awt.GridLayout(1, 0, 50, 0));
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 38, Short.MAX_VALUE)
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
+        btnNovoPost.setText("Novo Post");
+        btnNovoPost.addActionListener(this::btnNovoPostActionPerformed);
+        painelBotoesAcoes.add(btnNovoPost);
 
-        jLabel9.setText("maria_silva");
+        btnEditarPerfil.setText("Editar perfil");
+        painelBotoesAcoes.add(btnEditarPerfil);
 
-        jLabel10.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel10.setText("12 posts");
-
-        jPanel2.setLayout(new java.awt.BorderLayout());
-
-        jButton1.setText("Novo post");
-        jButton1.addActionListener(this::jButton1ActionPerformed);
-        jPanel2.add(jButton1, java.awt.BorderLayout.CENTER);
-
-        jButton2.setText("Editar perfil");
+        btnDeletarConta.setText("Deletar Conta");
+        painelBotoesAcoes.add(btnDeletarConta);
 
         scrollPostagens.setBackground(Tema.FUNDO);
         scrollPostagens.setBorder(null);
@@ -182,134 +161,65 @@ public class TelaPerfil extends javax.swing.JFrame {
         jPanel6.setMinimumSize(new java.awt.Dimension(480, 150));
         jPanel6.setPreferredSize(new java.awt.Dimension(480, 150));
         jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.Y_AXIS));
-
-        jPanel7.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel7.setMaximumSize(new java.awt.Dimension(450, 150));
-        jPanel7.setMinimumSize(new java.awt.Dimension(650, 150));
-
-        jPanel8.setBackground(new java.awt.Color(255, 204, 153));
-
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-
-        jLabel11.setText("maria_silva");
-
-        jLabel12.setBackground(new java.awt.Color(204, 204, 204));
-        jLabel12.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel12.setText("há 2h");
-
-        jLabel13.setText("Texto do post ");
-
-        jSeparator2.setBackground(new java.awt.Color(204, 204, 204));
-
-        jLabel14.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel14.setText("Curtidas: 234");
-
-        jLabel17.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel17.setText("Comentário: 21");
-
-        jLabel16.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel16.setText("joao: \"texto do comentário\" (41 curtidas)");
-
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 455, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel11)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel12))
-                    .addComponent(jLabel13)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jLabel14)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel17))
-                    .addComponent(jLabel16))
-                .addContainerGap(189, Short.MAX_VALUE))
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel11)
-                        .addComponent(jLabel12))
-                    .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel13)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel14)
-                    .addComponent(jLabel17))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 3, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel16)
-                .addContainerGap())
-        );
-
-        jPanel6.add(jPanel7);
-
         scrollPostagens.setViewportView(jPanel6);
+
+        painelInformacoesPerfil.setLayout(new java.awt.BorderLayout(20, 0));
+
+        foto.setBackground(new java.awt.Color(255, 204, 153));
+        foto.setPreferredSize(new java.awt.Dimension(64, 64));
+
+        javax.swing.GroupLayout fotoLayout = new javax.swing.GroupLayout(foto);
+        foto.setLayout(fotoLayout);
+        fotoLayout.setHorizontalGroup(
+            fotoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 64, Short.MAX_VALUE)
+        );
+        fotoLayout.setVerticalGroup(
+            fotoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 64, Short.MAX_VALUE)
+        );
+
+        painelInformacoesPerfil.add(foto, java.awt.BorderLayout.WEST);
+
+        panelInformacoes.setLayout(new javax.swing.BoxLayout(panelInformacoes, javax.swing.BoxLayout.Y_AXIS));
+
+        lblNomeUsuario.setText("maria_silva");
+        panelInformacoes.add(lblNomeUsuario);
+        panelInformacoes.add(filler1);
+
+        lblBio.setText("Pessoa comum");
+        panelInformacoes.add(lblBio);
+
+        painelInformacoesPerfil.add(panelInformacoes, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelHeader1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(painelHeader, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(painelBotoesAcoes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(scrollPostagens, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel10)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton2))))
-                    .addComponent(scrollPostagens, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addComponent(painelInformacoesPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(106, 106, 106)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(panelHeader1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(painelHeader, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(14, 14, 14)
+                .addComponent(painelInformacoesPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel9)
-                            .addComponent(jButton2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel10))
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(painelBotoesAcoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrollPostagens, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
+                .addComponent(scrollPostagens, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -327,9 +237,9 @@ public class TelaPerfil extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnNovoPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoPostActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnNovoPostActionPerformed
 
     private void lblSairMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSairMouseClicked
         TelaLogin telaLogin = new TelaLogin();
@@ -375,30 +285,25 @@ public class TelaPerfil extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
+    private javax.swing.JButton btnDeletarConta;
+    private javax.swing.JButton btnEditarPerfil;
+    private javax.swing.JButton btnNovoPost;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.JPanel foto;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JLabel lblBenchmark;
+    private javax.swing.JLabel lblBio;
     private javax.swing.JLabel lblFeed;
+    private javax.swing.JLabel lblNomeUsuario;
     private javax.swing.JLabel lblSair;
-    private javax.swing.JPanel panelHeader1;
+    private javax.swing.JPanel painelBotoesAcoes;
+    private javax.swing.JPanel painelHeader;
+    private javax.swing.JPanel painelInformacoesPerfil;
+    private javax.swing.JPanel panelInformacoes;
     private javax.swing.JScrollPane scrollPostagens;
     // End of variables declaration//GEN-END:variables
 }

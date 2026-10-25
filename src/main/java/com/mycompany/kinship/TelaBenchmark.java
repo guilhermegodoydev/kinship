@@ -8,6 +8,7 @@ import com.mycompany.kinship.ui.Tema;
 
 import com.mycompany.kinship.ui.ToggleArredondado;
 import com.mycompany.kinship.ui.BotaoArredondado;
+import com.mycompany.kinship.ui.TabelaArredondada;
 
 
 /**
@@ -62,9 +63,19 @@ public class TelaBenchmark extends javax.swing.JFrame {
         jToggleButton9 = new ToggleArredondado("Quase Ordenado");
         jToggleButton10 = new ToggleArredondado("Inverso");
         btnExecutar = new BotaoArredondado("Executar");
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jButton1 = new BotaoArredondado("Gerar Dados");
+        jButton2 = new BotaoArredondado("Apagar Dados");
+        jPanel2 = new javax.swing.JPanel();
+        panelTabela = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jScrollPane1 = new TabelaArredondada();
+        tabelaAlgoritmos = new javax.swing.JTable();
+        panelGraficos = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Benchmark");
@@ -73,6 +84,7 @@ public class TelaBenchmark extends javax.swing.JFrame {
 
         jPanel1.setBackground(Tema.FUNDO);
         jPanel1.setMinimumSize(new java.awt.Dimension(420, 520));
+        jPanel1.setLayout(new java.awt.BorderLayout());
 
         panelHeader.setBackground(new java.awt.Color(255, 204, 153));
 
@@ -136,7 +148,7 @@ public class TelaBenchmark extends javax.swing.JFrame {
         panelHeaderLayout.setHorizontalGroup(
             panelHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelHeaderLayout.createSequentialGroup()
-                .addContainerGap(419, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -147,6 +159,8 @@ public class TelaBenchmark extends javax.swing.JFrame {
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
+
+        jPanel1.add(panelHeader, java.awt.BorderLayout.NORTH);
 
         panelConfigs.setBackground(Tema.FUNDO);
         panelConfigs.setOpaque(false);
@@ -271,6 +285,21 @@ public class TelaBenchmark extends javax.swing.JFrame {
             }
         });
 
+        jLabel8.setFont(new java.awt.Font("Liberation Sans", 1, 13)); // NOI18N
+        jLabel8.setText("Dados de Teste");
+
+        jLabel9.setForeground(Tema.TEXTO_SUAVE);
+        jLabel9.setText("10.000 posts no banco");
+
+        jButton1.setText("Gerar Dados");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Apagar Dados");
+
         javax.swing.GroupLayout panelConfigsLayout = new javax.swing.GroupLayout(panelConfigs);
         panelConfigs.setLayout(panelConfigsLayout);
         panelConfigsLayout.setHorizontalGroup(
@@ -278,8 +307,11 @@ public class TelaBenchmark extends javax.swing.JFrame {
             .addGroup(panelConfigsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelConfigsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnExecutar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator1)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(panelConfigsLayout.createSequentialGroup()
                         .addGroup(panelConfigsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -291,9 +323,11 @@ public class TelaBenchmark extends javax.swing.JFrame {
                                         .addComponent(jToggleButton5)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jToggleButton6))
-                                    .addComponent(jToggleButton7))))
+                                    .addComponent(jToggleButton7)))
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel9))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(btnExecutar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelConfigsLayout.setVerticalGroup(
@@ -315,8 +349,26 @@ public class TelaBenchmark extends javax.swing.JFrame {
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnExecutar)
-                .addContainerGap(128, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel8)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jPanel1.add(panelConfigs, java.awt.BorderLayout.WEST);
+
+        jPanel2.setOpaque(false);
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        panelTabela.setOpaque(false);
+        panelTabela.setLayout(new java.awt.BorderLayout());
 
         jPanel6.setOpaque(false);
 
@@ -334,7 +386,7 @@ public class TelaBenchmark extends javax.swing.JFrame {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
                     .addComponent(jLabel7))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 231, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -343,29 +395,52 @@ public class TelaBenchmark extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel7)
-                .addContainerGap(157, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelHeader, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(panelConfigs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+        panelTabela.add(jPanel6, java.awt.BorderLayout.NORTH);
+
+        tabelaAlgoritmos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Algoritmo", "Tempo", "Comparações", "Trocas"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tabelaAlgoritmos);
+
+        panelTabela.add(jScrollPane1, java.awt.BorderLayout.SOUTH);
+
+        jPanel2.add(panelTabela, java.awt.BorderLayout.NORTH);
+
+        panelGraficos.setOpaque(false);
+
+        javax.swing.GroupLayout panelGraficosLayout = new javax.swing.GroupLayout(panelGraficos);
+        panelGraficos.setLayout(panelGraficosLayout);
+        panelGraficosLayout.setHorizontalGroup(
+            panelGraficosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 549, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(panelHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelConfigs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        panelGraficosLayout.setVerticalGroup(
+            panelGraficosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
         );
+
+        jPanel2.add(panelGraficos, java.awt.BorderLayout.SOUTH);
+
+        jPanel1.add(jPanel2, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -408,6 +483,10 @@ public class TelaBenchmark extends javax.swing.JFrame {
         btnExecutar.setText("Executando...");
     }//GEN-LAST:event_btnExecutarActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -438,6 +517,8 @@ public class TelaBenchmark extends javax.swing.JFrame {
     private javax.swing.ButtonGroup btnGrupOpOrdernar;
     private javax.swing.ButtonGroup btnGrupQtRegistros;
     private javax.swing.ButtonGroup btnGrupTiposDadosOp;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -445,11 +526,16 @@ public class TelaBenchmark extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToggleButton jToggleButton10;
     private javax.swing.JToggleButton jToggleButton2;
@@ -464,6 +550,9 @@ public class TelaBenchmark extends javax.swing.JFrame {
     private javax.swing.JLabel lblPerfil;
     private javax.swing.JLabel lblSair;
     private javax.swing.JPanel panelConfigs;
+    private javax.swing.JPanel panelGraficos;
     private javax.swing.JPanel panelHeader;
+    private javax.swing.JPanel panelTabela;
+    private javax.swing.JTable tabelaAlgoritmos;
     // End of variables declaration//GEN-END:variables
 }

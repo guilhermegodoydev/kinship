@@ -1,4 +1,4 @@
-package com.mycompany.kinship.dao;
+package com.mycompany.kinship.daos;
 
 import com.mycompany.kinship.database.Conexao;
 import com.mycompany.kinship.models.Comentario;
@@ -10,7 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
 
 public class ComentarioDAO {
 
@@ -22,6 +25,7 @@ public class ComentarioDAO {
                 c.codigo_post,
                 c.codigo_usuario,
                 u.nome AS autor_nome,
+                u.nickname AS autor_nickname,
                 u.foto_perfil AS autor_foto,
                 (SELECT COUNT(*)
                  FROM dbo.curtida_comentario cc
@@ -163,10 +167,83 @@ public class ComentarioDAO {
 
         comentario.definirAutor(
                 resultado.getString("autor_nome"),
+                resultado.getString("autor_nickname"),
                 resultado.getString("autor_foto")
         );
         comentario.setTotalCurtidas(resultado.getInt("total_curtidas"));
 
         return comentario;
+    }
+    
+    public Map<Integer, Comentario> buscarDestaquePorPosts(List<Integer> codigosPost)
+        throws SQLException {
+
+        Map<Integer, Comentario> destaques = new HashMap<>();
+        if (codigosPost.isEmpty()) {
+            return destaques;
+        }
+
+        String marcadores = String.join(",", Collections.nCopies(codigosPost.size(), "?"));
+        String sql = """
+                WITH base AS (
+                    SELECT c.codigo, c.texto, c.data_hora, c.codigo_post, c.codigo_usuario,
+                           u.nome AS autor_nome, u.nickname AS autor_nickname, u.foto_perfil AS autor_foto,
+                           (SELECT COUNT(*) FROM dbo.curtida_comentario cc
+                            WHERE cc.codigo_comentario = c.codigo) AS total_curtidas
+                    FROM dbo.comentario c
+                    INNER JOIN dbo.usuario u ON u.codigo = c.codigo_usuario
+                    WHERE c.codigo_post IN (%s)
+                ),
+                ranqueado AS (
+                    SELECT *, ROW_NUMBER() OVER (
+                        PARTITION BY codigo_post
+                        ORDER BY total_curtidas DESC, codigo ASC) AS posicao
+                    FROM base
+                )
+                SELECT codigo, texto, data_hora, codigo_post, codigo_usuario,
+                       autor_nome, autor_nickname, autor_foto, total_curtidas
+                FROM ranqueado
+                WHERE posicao = 1
+                """.formatted(marcadores);
+
+        try (Connection conexao = Conexao.conectar();
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            for (int i = 0; i < codigosPost.size(); i++) {
+                comando.setInt(i + 1, codigosPost.get(i));
+            }
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                while (resultado.next()) {
+                    Comentario c = mapearComentario(resultado);
+                    destaques.put(c.getCodigoPost(), c);
+                }
+            }
+        }
+        return destaques;
+    }
+    
+    public List<Comentario> listarPagina(int codigoPost, int deslocamento, int limite) throws SQLException {
+        String sql = CONSULTA_COMENTARIOS
+                + " WHERE c.codigo_post = ?"
+                + " ORDER BY c.data_hora DESC, c.codigo DESC"
+                + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<Comentario> comentarios = new ArrayList<>();
+
+        try (Connection conexao = Conexao.conectar();
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            comando.setInt(1, codigoPost);
+            comando.setInt(2, deslocamento);
+            comando.setInt(3, limite);
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                while (resultado.next()) {
+                    comentarios.add(mapearComentario(resultado));
+                }
+            }
+        }
+        return comentarios; 
     }
 }

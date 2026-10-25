@@ -3,11 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.kinship;
+import com.mycompany.kinship.models.Usuario;
+import com.mycompany.kinship.services.AutenticacaoService;
+import com.mycompany.kinship.services.ErroDeAcessoException;
+import com.mycompany.kinship.services.Sessao;
+import com.mycompany.kinship.services.ValidacaoException;
 import com.mycompany.kinship.ui.Tema;
 import com.mycompany.kinship.ui.BotaoArredondado;
 import com.mycompany.kinship.ui.PainelArredondado;
 import com.mycompany.kinship.ui.CampoTextoArredondado;
 import com.mycompany.kinship.ui.CampoSenhaArredondado;
+import java.util.Map;
+import java.util.Optional;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -17,6 +25,8 @@ public class TelaLogin extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaLogin.class.getName());
 
+    private final AutenticacaoService authService = new AutenticacaoService();
+    
     /**
      * Creates new form TelaLogin
      */
@@ -34,127 +44,139 @@ public class TelaLogin extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new PainelArredondado();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        panelForm = new PainelArredondado();
+        panelHeader = new javax.swing.JPanel();
+        lblTitulo = new javax.swing.JLabel();
+        lblSubtitulo = new javax.swing.JLabel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 32767));
+        panelEmail = new javax.swing.JPanel();
+        lblEmail1 = new javax.swing.JLabel();
         txtEmail = new CampoTextoArredondado();
-        btnEntrar = new BotaoArredondado("Entrar");
-        jLabel5 = new javax.swing.JLabel();
-        lblEmail = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        lblErroEmail = new javax.swing.JLabel();
+        panelSenha = new javax.swing.JPanel();
+        lblSenha = new javax.swing.JLabel();
         txtSenha = new CampoSenhaArredondado();
+        lblErroSenha = new javax.swing.JLabel();
+        filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 10), new java.awt.Dimension(5, 32767));
+        panelBotoes = new javax.swing.JPanel();
+        btnEntrar = new BotaoArredondado("Entrar");
+        lblCriarConta = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Login");
+        setResizable(false);
         setSize(new java.awt.Dimension(420, 520));
 
         jPanel1.setBackground(Tema.FUNDO);
 
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        panelForm.setBackground(new java.awt.Color(255, 255, 255));
+        panelForm.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panelForm.setOpaque(false);
+        panelForm.setLayout(new javax.swing.BoxLayout(panelForm, javax.swing.BoxLayout.Y_AXIS));
 
-        jLabel1.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
-        jLabel1.setForeground(Tema.TEXTO);
-        jLabel1.setText("KinShip");
+        panelHeader.setOpaque(false);
+        panelHeader.setLayout(new java.awt.BorderLayout());
 
-        jLabel2.setFont(new java.awt.Font("Liberation Sans", 0, 14)); // NOI18N
-        jLabel2.setForeground(Tema.TEXTO_SUAVE);
-        jLabel2.setText("Entre para ver o Feed");
+        lblTitulo.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        lblTitulo.setForeground(Tema.TEXTO);
+        lblTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitulo.setText("KinShip");
+        lblTitulo.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        panelHeader.add(lblTitulo, java.awt.BorderLayout.NORTH);
+
+        lblSubtitulo.setFont(new java.awt.Font("Liberation Sans", 0, 14)); // NOI18N
+        lblSubtitulo.setForeground(Tema.TEXTO_SUAVE);
+        lblSubtitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblSubtitulo.setText("Entre para ver o Feed");
+        lblSubtitulo.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        panelHeader.add(lblSubtitulo, java.awt.BorderLayout.CENTER);
+
+        panelForm.add(panelHeader);
+        panelForm.add(filler1);
+
+        panelEmail.setOpaque(false);
+        panelEmail.setLayout(new java.awt.BorderLayout());
+
+        lblEmail1.setForeground(Tema.TEXTO);
+        lblEmail1.setText("Email:");
+        panelEmail.add(lblEmail1, java.awt.BorderLayout.NORTH);
 
         txtEmail.setBackground(new java.awt.Color(204, 204, 204));
-        txtEmail.setBorder(null);
+        txtEmail.setMaximumSize(new java.awt.Dimension(2147483647, 25));
+        txtEmail.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtEmail.setPreferredSize(new java.awt.Dimension(64, 30));
+        txtEmail.addActionListener(this::txtEmailActionPerformed);
+        panelEmail.add(txtEmail, java.awt.BorderLayout.CENTER);
+
+        lblErroEmail.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroEmail.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroEmail.setMinimumSize(new java.awt.Dimension(0, 16));
+        lblErroEmail.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelEmail.add(lblErroEmail, java.awt.BorderLayout.PAGE_END);
+
+        panelForm.add(panelEmail);
+
+        panelSenha.setOpaque(false);
+        panelSenha.setLayout(new java.awt.BorderLayout());
+
+        lblSenha.setForeground(Tema.TEXTO);
+        lblSenha.setText("Senha:");
+        panelSenha.add(lblSenha, java.awt.BorderLayout.NORTH);
+
+        txtSenha.setBackground(new java.awt.Color(204, 204, 204));
+        txtSenha.setMaximumSize(new java.awt.Dimension(64, 25));
+        txtSenha.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtSenha.setPreferredSize(new java.awt.Dimension(64, 30));
+        txtSenha.addActionListener(this::txtSenhaActionPerformed);
+        panelSenha.add(txtSenha, java.awt.BorderLayout.CENTER);
+
+        lblErroSenha.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroSenha.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroSenha.setMinimumSize(new java.awt.Dimension(0, 16));
+        lblErroSenha.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelSenha.add(lblErroSenha, java.awt.BorderLayout.PAGE_END);
+
+        panelForm.add(panelSenha);
+        panelForm.add(filler6);
+
+        panelBotoes.setOpaque(false);
+        panelBotoes.setLayout(new java.awt.BorderLayout());
 
         btnEntrar.setBackground(Tema.LARANJA);
         btnEntrar.setForeground(Tema.TEXTO);
-        btnEntrar.setText("Entrar");
         btnEntrar.setBorder(null);
+        btnEntrar.setLabel("Entrar");
+        btnEntrar.setPreferredSize(new java.awt.Dimension(56, 25));
         btnEntrar.addActionListener(this::btnEntrarActionPerformed);
+        panelBotoes.add(btnEntrar, java.awt.BorderLayout.CENTER);
 
-        jLabel5.setForeground(Tema.TEXTO);
-        jLabel5.setText("Criar Conta");
-        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
+        lblCriarConta.setForeground(Tema.TEXTO);
+        lblCriarConta.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCriarConta.setText("Criar Conta");
+        lblCriarConta.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel5MouseClicked(evt);
+                lblCriarContaMouseClicked(evt);
             }
         });
+        panelBotoes.add(lblCriarConta, java.awt.BorderLayout.SOUTH);
 
-        lblEmail.setForeground(Tema.TEXTO);
-        lblEmail.setText("Email:");
-
-        jLabel4.setForeground(Tema.TEXTO);
-        jLabel4.setText("Senha:");
-
-        txtSenha.setBackground(new java.awt.Color(204, 204, 204));
-        txtSenha.setBorder(null);
-        txtSenha.addActionListener(this::txtSenhaActionPerformed);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(97, 97, 97))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(64, 64, 64)
-                        .addComponent(jLabel2))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(106, 106, 106)
-                        .addComponent(jLabel5))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel4))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(lblEmail)))
-                .addContainerGap(76, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtEmail, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnEntrar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtSenha, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblEmail)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
-                .addComponent(btnEntrar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5)
-                .addGap(26, 26, 26))
-        );
+        panelForm.add(panelBotoes);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(69, 69, 69)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(74, Short.MAX_VALUE))
+                .addGap(180, 180, 180)
+                .addComponent(panelForm, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(222, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(111, 111, 111)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(123, Short.MAX_VALUE))
+                .addGap(103, 103, 103)
+                .addComponent(panelForm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(130, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -172,21 +194,52 @@ public class TelaLogin extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtEmailActionPerformed
+
     private void txtSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSenhaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtSenhaActionPerformed
 
     private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
-        TelaFeed telaFeed = new TelaFeed();
-        telaFeed.setVisible(true);
-        this.dispose();
+        lblErroEmail.setText(" ");
+        lblErroSenha.setText(" ");
+
+        try {
+            Optional<Usuario> usuario = authService.autenticar(
+                    txtEmail.getText(),
+                    new String(txtSenha.getPassword()));
+
+            if (usuario.isEmpty()) {
+                lblErroSenha.setText("E-mail ou senha incorretos.");
+                txtSenha.setText("");
+                txtSenha.requestFocus();
+                return;
+            }
+
+            Sessao.iniciar(usuario.get());
+            new TelaFeed().setVisible(true);
+            this.dispose();
+
+        } catch (ValidacaoException ex) {
+            Map<String, String> erros = ex.getErros();
+            lblErroEmail.setText(erros.getOrDefault("email", " "));
+            lblErroSenha.setText(erros.getOrDefault("senha", " "));
+
+        } catch (ErroDeAcessoException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Não foi possível acessar o banco de dados. Tente novamente.",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEntrarActionPerformed
 
-    private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
+    private void lblCriarContaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCriarContaMouseClicked
         TelaCadastro telaCadastro = new TelaCadastro();
         telaCadastro.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jLabel5MouseClicked
+    }//GEN-LAST:event_lblCriarContaMouseClicked
 
     /**
      * @param args the command line arguments
@@ -215,13 +268,21 @@ public class TelaLogin extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEntrar;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler6;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JLabel lblEmail;
+    private javax.swing.JLabel lblCriarConta;
+    private javax.swing.JLabel lblEmail1;
+    private javax.swing.JLabel lblErroEmail;
+    private javax.swing.JLabel lblErroSenha;
+    private javax.swing.JLabel lblSenha;
+    private javax.swing.JLabel lblSubtitulo;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JPanel panelBotoes;
+    private javax.swing.JPanel panelEmail;
+    private javax.swing.JPanel panelForm;
+    private javax.swing.JPanel panelHeader;
+    private javax.swing.JPanel panelSenha;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JPasswordField txtSenha;
     // End of variables declaration//GEN-END:variables

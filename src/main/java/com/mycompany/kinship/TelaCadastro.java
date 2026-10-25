@@ -4,11 +4,21 @@
  */
 package com.mycompany.kinship;
 
+import com.mycompany.kinship.services.AutenticacaoService;
+import com.mycompany.kinship.services.ErroDeAcessoException;
+import com.mycompany.kinship.services.ValidacaoException;
 import com.mycompany.kinship.ui.BotaoArredondado;
 import com.mycompany.kinship.ui.PainelArredondado;
 import com.mycompany.kinship.ui.CampoSenhaArredondado;
 import com.mycompany.kinship.ui.CampoTextoArredondado;
 import com.mycompany.kinship.ui.Tema;
+import java.awt.Color;
+import java.awt.Font;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
         
 /**
  *
@@ -17,12 +27,29 @@ import com.mycompany.kinship.ui.Tema;
 public class TelaCadastro extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaCadastro.class.getName());
-
+    private final AutenticacaoService authService = new AutenticacaoService();
+    private final Map<String, JLabel> labelsErro = new HashMap<>();
+    private final Map<String, JComponent> camposErro = new HashMap<>();
+    
     /**
      * Creates new form TelaCadastro
      */
     public TelaCadastro() {
         initComponents();
+        
+        labelsErro.put("nome", lblErroNome);
+        labelsErro.put("nickname", lblErroNickname);
+        labelsErro.put("email", lblErroEmail);
+        labelsErro.put("senha", lblErroSenha);
+        labelsErro.put("confirmarSenha", lblErroConfirmarSenha);
+
+        camposErro.put("nome", txtNome);
+        camposErro.put("nickname", txtNomeUsuario);
+        camposErro.put("email", txtEmail);
+        camposErro.put("senha", txtSenha);
+        camposErro.put("confirmarSenha", txtConfirmarSenha);
+
+        limparErros();
     }
 
     /**
@@ -35,157 +62,202 @@ public class TelaCadastro extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new PainelArredondado();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        txtEmail = new CampoTextoArredondado();
-        btnCadastrar = new BotaoArredondado("Entrar");
-        lblEntrar = new javax.swing.JLabel();
+        panelForm = new PainelArredondado();
+        panelHeader = new javax.swing.JPanel();
+        lblTitulo = new javax.swing.JLabel();
+        lblSubtitulo = new javax.swing.JLabel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 20), new java.awt.Dimension(5, 32767));
+        panelNome = new javax.swing.JPanel();
+        lblNome = new javax.swing.JLabel();
+        txtNome = new CampoTextoArredondado();
+        lblErroNome = new javax.swing.JLabel();
+        panelNomeUsuario = new javax.swing.JPanel();
+        lblNomeUsuario = new javax.swing.JLabel();
+        txtNomeUsuario = new CampoTextoArredondado();
+        lblErroNickname = new javax.swing.JLabel();
+        panelEmail = new javax.swing.JPanel();
         lblEmail = new javax.swing.JLabel();
+        txtEmail = new CampoTextoArredondado();
+        lblErroEmail = new javax.swing.JLabel();
+        panelSenha = new javax.swing.JPanel();
         lblSenha = new javax.swing.JLabel();
         txtSenha = new CampoSenhaArredondado();
-        txtNome = new CampoTextoArredondado();
-        jLabel3 = new javax.swing.JLabel();
-        lblNome = new javax.swing.JLabel();
-        txtNomeUsuario = new CampoTextoArredondado();
+        lblErroSenha = new javax.swing.JLabel();
+        panelConfirmarSenha = new javax.swing.JPanel();
+        lblConfirmarSenha = new javax.swing.JLabel();
+        txtConfirmarSenha = new CampoSenhaArredondado();
+        lblErroConfirmarSenha = new javax.swing.JLabel();
+        filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(5, 15), new java.awt.Dimension(5, 15), new java.awt.Dimension(5, 32767));
+        panelBotoes = new javax.swing.JPanel();
+        btnCadastrar = new BotaoArredondado("Entrar");
+        lblEntrar = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Cadastro");
+        setResizable(false);
 
         jPanel1.setBackground(Tema.FUNDO);
 
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        panelForm.setBackground(new java.awt.Color(255, 255, 255));
+        panelForm.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panelForm.setOpaque(false);
+        panelForm.setLayout(new javax.swing.BoxLayout(panelForm, javax.swing.BoxLayout.Y_AXIS));
 
-        jLabel1.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
-        jLabel1.setForeground(Tema.TEXTO);
-        jLabel1.setText("KinShip");
+        panelHeader.setOpaque(false);
+        panelHeader.setLayout(new java.awt.BorderLayout());
 
-        jLabel2.setFont(new java.awt.Font("Liberation Sans", 0, 14)); // NOI18N
-        jLabel2.setForeground(Tema.TEXTO_SUAVE);
-        jLabel2.setText("Entre para ver o Feed");
+        lblTitulo.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        lblTitulo.setForeground(Tema.TEXTO);
+        lblTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitulo.setText("KinShip");
+        lblTitulo.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        panelHeader.add(lblTitulo, java.awt.BorderLayout.NORTH);
+
+        lblSubtitulo.setFont(new java.awt.Font("Liberation Sans", 0, 14)); // NOI18N
+        lblSubtitulo.setForeground(Tema.TEXTO_SUAVE);
+        lblSubtitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblSubtitulo.setText("Entre para ver o Feed");
+        lblSubtitulo.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        panelHeader.add(lblSubtitulo, java.awt.BorderLayout.CENTER);
+
+        panelForm.add(panelHeader);
+        panelForm.add(filler1);
+
+        panelNome.setOpaque(false);
+        panelNome.setLayout(new java.awt.BorderLayout());
+
+        lblNome.setForeground(Tema.TEXTO);
+        lblNome.setText("Nome:");
+        panelNome.add(lblNome, java.awt.BorderLayout.NORTH);
+
+        txtNome.setBackground(new java.awt.Color(204, 204, 204));
+        txtNome.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtNome.setPreferredSize(new java.awt.Dimension(64, 30));
+        panelNome.add(txtNome, java.awt.BorderLayout.CENTER);
+
+        lblErroNome.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroNome.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroNome.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelNome.add(lblErroNome, java.awt.BorderLayout.SOUTH);
+
+        panelForm.add(panelNome);
+
+        panelNomeUsuario.setOpaque(false);
+        panelNomeUsuario.setLayout(new java.awt.BorderLayout());
+
+        lblNomeUsuario.setText("Nome de usuário:");
+        panelNomeUsuario.add(lblNomeUsuario, java.awt.BorderLayout.NORTH);
+
+        txtNomeUsuario.setBackground(new java.awt.Color(204, 204, 204));
+        txtNomeUsuario.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtNomeUsuario.setPreferredSize(new java.awt.Dimension(64, 30));
+        panelNomeUsuario.add(txtNomeUsuario, java.awt.BorderLayout.CENTER);
+
+        lblErroNickname.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroNickname.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroNickname.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelNomeUsuario.add(lblErroNickname, java.awt.BorderLayout.PAGE_END);
+
+        panelForm.add(panelNomeUsuario);
+
+        panelEmail.setOpaque(false);
+        panelEmail.setLayout(new java.awt.BorderLayout());
+
+        lblEmail.setForeground(Tema.TEXTO);
+        lblEmail.setText("Email:");
+        panelEmail.add(lblEmail, java.awt.BorderLayout.NORTH);
 
         txtEmail.setBackground(new java.awt.Color(204, 204, 204));
-        txtEmail.setBorder(null);
+        txtEmail.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtEmail.setPreferredSize(new java.awt.Dimension(64, 30));
+        txtEmail.addActionListener(this::txtEmailActionPerformed);
+        panelEmail.add(txtEmail, java.awt.BorderLayout.CENTER);
+
+        lblErroEmail.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroEmail.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroEmail.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        lblErroEmail.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelEmail.add(lblErroEmail, java.awt.BorderLayout.SOUTH);
+
+        panelForm.add(panelEmail);
+
+        panelSenha.setOpaque(false);
+        panelSenha.setLayout(new java.awt.BorderLayout());
+
+        lblSenha.setForeground(Tema.TEXTO);
+        lblSenha.setText("Senha:");
+        panelSenha.add(lblSenha, java.awt.BorderLayout.NORTH);
+
+        txtSenha.setBackground(new java.awt.Color(204, 204, 204));
+        txtSenha.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtSenha.setPreferredSize(new java.awt.Dimension(64, 30));
+        txtSenha.addActionListener(this::txtSenhaActionPerformed);
+        panelSenha.add(txtSenha, java.awt.BorderLayout.CENTER);
+
+        lblErroSenha.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroSenha.setForeground(new java.awt.Color(255, 51, 51));
+        lblErroSenha.setMinimumSize(new java.awt.Dimension(0, 16));
+        lblErroSenha.setPreferredSize(new java.awt.Dimension(0, 16));
+        panelSenha.add(lblErroSenha, java.awt.BorderLayout.SOUTH);
+
+        panelForm.add(panelSenha);
+
+        panelConfirmarSenha.setOpaque(false);
+        panelConfirmarSenha.setLayout(new java.awt.BorderLayout());
+
+        lblConfirmarSenha.setText("Confirmar Senha:");
+        panelConfirmarSenha.add(lblConfirmarSenha, java.awt.BorderLayout.NORTH);
+
+        txtConfirmarSenha.setBackground(new java.awt.Color(204, 204, 204));
+        txtConfirmarSenha.setMinimumSize(new java.awt.Dimension(64, 25));
+        txtConfirmarSenha.setPreferredSize(new java.awt.Dimension(64, 30));
+        panelConfirmarSenha.add(txtConfirmarSenha, java.awt.BorderLayout.CENTER);
+
+        lblErroConfirmarSenha.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblErroConfirmarSenha.setForeground(new java.awt.Color(255, 51, 51));
+        panelConfirmarSenha.add(lblErroConfirmarSenha, java.awt.BorderLayout.SOUTH);
+
+        panelForm.add(panelConfirmarSenha);
+        panelForm.add(filler6);
+
+        panelBotoes.setOpaque(false);
+        panelBotoes.setLayout(new java.awt.BorderLayout());
 
         btnCadastrar.setBackground(Tema.LARANJA);
         btnCadastrar.setForeground(Tema.TEXTO);
         btnCadastrar.setText("Cadastrar");
         btnCadastrar.setBorder(null);
+        btnCadastrar.setPreferredSize(new java.awt.Dimension(56, 25));
         btnCadastrar.addActionListener(this::btnCadastrarActionPerformed);
+        panelBotoes.add(btnCadastrar, java.awt.BorderLayout.CENTER);
 
         lblEntrar.setForeground(Tema.TEXTO);
+        lblEntrar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblEntrar.setText("Já tem uma conta? Entrar");
         lblEntrar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblEntrarMouseClicked(evt);
             }
         });
+        panelBotoes.add(lblEntrar, java.awt.BorderLayout.SOUTH);
 
-        lblEmail.setForeground(Tema.TEXTO);
-        lblEmail.setText("Email:");
-
-        lblSenha.setForeground(Tema.TEXTO);
-        lblSenha.setText("Senha:");
-
-        txtSenha.setBackground(new java.awt.Color(204, 204, 204));
-        txtSenha.setBorder(null);
-        txtSenha.addActionListener(this::txtSenhaActionPerformed);
-
-        txtNome.setBackground(new java.awt.Color(204, 204, 204));
-        txtNome.setBorder(null);
-
-        jLabel3.setText("Nome de usuário:");
-
-        lblNome.setForeground(Tema.TEXTO);
-        lblNome.setText("Nome:");
-
-        txtNomeUsuario.setBackground(new java.awt.Color(204, 204, 204));
-        txtNomeUsuario.setBorder(null);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(97, 97, 97))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(64, 64, 64)
-                        .addComponent(jLabel2))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(lblSenha))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(lblEmail))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel3))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(lblNome, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(62, 62, 62)
-                        .addComponent(lblEntrar)))
-                .addContainerGap(68, Short.MAX_VALUE))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtEmail, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnCadastrar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtSenha, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtNome, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtNomeUsuario))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addGap(26, 26, 26)
-                .addComponent(lblNome)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtNomeUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addComponent(lblEmail)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblSenha)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnCadastrar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(3, 3, 3)
-                .addComponent(lblEntrar)
-                .addGap(26, 26, 26))
-        );
+        panelForm.add(panelBotoes);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(67, 67, 67)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(73, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(195, Short.MAX_VALUE)
+                .addComponent(panelForm, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(186, 186, 186))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(58, 58, 58)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(59, 59, 59))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(55, Short.MAX_VALUE)
+                .addComponent(panelForm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -204,11 +276,71 @@ public class TelaCadastro extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
-        TelaLogin telaLogin = new TelaLogin();
-        telaLogin.setVisible(true);
-        this.dispose();
+        try {
+            authService.cadastrar(
+                txtNome.getText(),
+                txtNomeUsuario.getText(),
+                txtEmail.getText(),
+                new String(txtSenha.getPassword()),
+                new String(txtConfirmarSenha.getPassword())
+            );
+
+            JOptionPane.showMessageDialog(this,
+                    "Cadastro realizado com sucesso! Faça login para continuar.",
+                    "Kinship", JOptionPane.INFORMATION_MESSAGE);
+
+            lblEmail.setText("");
+            lblNome.setText("");
+            lblSenha.setText("");
+            
+            TelaLogin telaLogin = new TelaLogin();
+            telaLogin.setVisible(true);
+            this.dispose();
+
+        } catch (ValidacaoException ex) {
+            mostrarErros(ex.getErros());
+        } catch (ErroDeAcessoException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Não foi possível acessar o banco de dados. Tente novamente.",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
+    private void limparErros() {
+        for (JLabel label : labelsErro.values()) {
+            label.setText(" ");
+        }
+    }
+    
+    private void mostrarErros(Map<String, String> erros) {
+        limparErros();
+
+        StringBuilder semLabel = new StringBuilder();
+        JComponent primeiro = null;
+
+        for (Map.Entry<String, String> erro : erros.entrySet()) {
+            JLabel label = labelsErro.get(erro.getKey());
+            if (label != null) {
+                label.setText(erro.getValue());
+                if (primeiro == null) {
+                    primeiro = camposErro.get(erro.getKey());
+                }
+            } else {
+                semLabel.append(erro.getValue()).append('\n');
+            }
+        }
+
+        if (semLabel.length() > 0) {
+            JOptionPane.showMessageDialog(this, semLabel.toString().trim(),
+                    "Verifique os campos", JOptionPane.WARNING_MESSAGE);
+        }
+
+        if (primeiro != null) {
+            primeiro.requestFocus();
+        }
+    }
+    
     private void lblEntrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblEntrarMouseClicked
         TelaLogin telaLogin = new TelaLogin();
         telaLogin.setVisible(true);
@@ -218,6 +350,10 @@ public class TelaCadastro extends javax.swing.JFrame {
     private void txtSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSenhaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtSenhaActionPerformed
+
+    private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtEmailActionPerformed
 
     /**
      * @param args the command line arguments
@@ -246,15 +382,31 @@ public class TelaCadastro extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCadastrar;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler6;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel lblConfirmarSenha;
     private javax.swing.JLabel lblEmail;
     private javax.swing.JLabel lblEntrar;
+    private javax.swing.JLabel lblErroConfirmarSenha;
+    private javax.swing.JLabel lblErroEmail;
+    private javax.swing.JLabel lblErroNickname;
+    private javax.swing.JLabel lblErroNome;
+    private javax.swing.JLabel lblErroSenha;
     private javax.swing.JLabel lblNome;
+    private javax.swing.JLabel lblNomeUsuario;
     private javax.swing.JLabel lblSenha;
+    private javax.swing.JLabel lblSubtitulo;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JPanel panelBotoes;
+    private javax.swing.JPanel panelConfirmarSenha;
+    private javax.swing.JPanel panelEmail;
+    private javax.swing.JPanel panelForm;
+    private javax.swing.JPanel panelHeader;
+    private javax.swing.JPanel panelNome;
+    private javax.swing.JPanel panelNomeUsuario;
+    private javax.swing.JPanel panelSenha;
+    private javax.swing.JPasswordField txtConfirmarSenha;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtNome;
     private javax.swing.JTextField txtNomeUsuario;
