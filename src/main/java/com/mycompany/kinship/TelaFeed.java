@@ -1,4 +1,5 @@
 package com.mycompany.kinship;
+
 import com.mycompany.kinship.models.Post;
 import com.mycompany.kinship.ui.Tema;
 import com.mycompany.kinship.ui.ToggleArredondado;
@@ -17,17 +18,22 @@ import com.mycompany.kinship.daos.ComentarioDAO;
 import com.mycompany.kinship.ui.Formatacao;
 import com.mycompany.kinship.algoritmos.Algoritmo;
 import com.mycompany.kinship.services.Criterio;
+import com.mycompany.kinship.services.CurtidaService;
 import com.mycompany.kinship.services.FeedService;
 import com.mycompany.kinship.services.ResultadoOrdenacao;
-import java.awt.Component;
+import com.mycompany.kinship.services.Sessao;
 import java.util.Locale;
 import javax.swing.Box;
 import java.text.NumberFormat;
+import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-
+import javax.swing.JOptionPane;
+import java.util.stream.Collectors;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+
+
 public class TelaFeed extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(TelaFeed.class.getName());
@@ -44,6 +50,9 @@ public class TelaFeed extends javax.swing.JFrame {
     private List<Post> postsOriginais = List.of();
     private int totalNoBanco = 0;
     private JToggleButton[] controles;
+    private final CurtidaService curtidaService = new CurtidaService();
+    private Map<Integer, Post> postsPorCodigo = Map.of();
+    private record DadosPagina(Map<Integer, Comentario> destaques, Set<Integer> curtidos) {}
     
     public TelaFeed() {
         initComponents();
@@ -101,6 +110,7 @@ public class TelaFeed extends javax.swing.JFrame {
                 try {
                     FeedService.Carga carga = get();
                     postsOriginais = carga.posts();
+                    postsPorCodigo = postsOriginais.stream().collect(Collectors.toMap(Post::getCodigo, p -> p));
                     totalNoBanco = carga.totalNoBanco();
                     ordenarEExibir();
                 } catch (InterruptedException | ExecutionException ex) {
@@ -196,33 +206,38 @@ public class TelaFeed extends javax.swing.JFrame {
                 LIMITE_EXIBICAO);
         final List<Post> fatia = new ArrayList<>(listaOrdenada.subList(proximoIndice, fim));
 
-        new SwingWorker<Map<Integer, Comentario>, Void>() {
-            @Override
-            protected Map<Integer, Comentario> doInBackground() throws Exception {
+        new SwingWorker<DadosPagina, Void>() {
+             @Override
+            protected DadosPagina doInBackground() throws Exception {
                 List<Integer> codigos = fatia.stream().map(Post::getCodigo).toList();
-                return comentarioDAO.buscarDestaquePorPosts(codigos);
+                Map<Integer, Comentario> destaques = comentarioDAO.buscarDestaquePorPosts(codigos);
+                Set<Integer> curtidos = curtidaService.postsCurtidos(codigoUsuarioLogado(), codigos);
+                return new DadosPagina(destaques, curtidos);
             }
 
             @Override
             protected void done() {
                 if (geracao != geracaoAtual) return;
 
-                Map<Integer, Comentario> destaques;
+                DadosPagina dados;
                 try {
-                    destaques = get();
+                    dados = get();
                 } catch (InterruptedException | ExecutionException ex) {
                     ex.printStackTrace();
-                    destaques = Map.of();
+                    dados = new DadosPagina(Map.of(), Set.of());
                 }
 
                 for (Post p : fatia) {
                     painelPosts.add(new PostCard(
+                            p.getCodigo(),
                             p.getAutorNome(),
                             Formatacao.tempoRelativo(p.getDataPublicacao()),
                             p.getConteudo(),
                             p.getTotalCurtidas(),
                             p.getTotalComentarios(),
-                            Formatacao.resumoComentario(destaques.get(p.getCodigo()))));
+                            Formatacao.resumoComentario(dados.destaques().get(p.getCodigo())),
+                            dados.curtidos().contains(p.getCodigo()),
+                            TelaFeed.this::aoClicarEmCurtir));
                     painelPosts.add(Box.createVerticalStrut(12));
                 }
                 
@@ -249,6 +264,44 @@ public class TelaFeed extends javax.swing.JFrame {
                         carregarProximaPagina();
                     }
                 });
+            }
+        }.execute();
+    }
+    
+    private int codigoUsuarioLogado() {
+        return Sessao.estaLogado() ? Sessao.getUsuarioLogado().getCodigo() : 0;
+    }
+
+    private void aoClicarEmCurtir(PostCard card) {
+        int usuario = codigoUsuarioLogado();
+        if (usuario == 0) return;
+
+        card.definirOcupado(true);
+
+        new SwingWorker<CurtidaService.Resultado, Void>() {
+            @Override
+            protected CurtidaService.Resultado doInBackground() {
+                return curtidaService.alternar(card.getCodigoPost(), usuario);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    CurtidaService.Resultado r = get();
+                    card.atualizarCurtida(r.curtido(), r.total());
+
+                    Post post = postsPorCodigo.get(card.getCodigoPost());
+                    if (post != null) {
+                        post.setTotalCurtidas(r.total());
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(TelaFeed.this,
+                            "Não foi possível curtir o post. Tente novamente.",
+                            "Erro", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    card.definirOcupado(false);
+                }
             }
         }.execute();
     }
