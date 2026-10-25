@@ -147,4 +147,31 @@ public class PostDAO {
 
         return post;
     }
+    
+    public int contar() throws SQLException {
+        try (Connection conexao = Conexao.conectar();
+             PreparedStatement comando = conexao.prepareStatement("SELECT COUNT(*) FROM dbo.post");
+             ResultSet resultado = comando.executeQuery()) {
+            return resultado.next() ? resultado.getInt(1) : 0;
+        }
+    }
+    
+    public List<Post> listarParaFeed(int limite) throws SQLException {
+        String sql = CONSULTA_POSTS
+                + " ORDER BY p.codigo DESC OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<Post> posts = new ArrayList<>();
+        try (Connection conexao = Conexao.conectar();
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            comando.setInt(1, limite);
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                while (resultado.next()) {
+                    posts.add(mapearPost(resultado));
+                }
+            }
+        }
+        return posts;
+    }
 }

@@ -1,4 +1,4 @@
-package com.mycompany.kinship.dao;
+package com.mycompany.kinship.daos;
 
 import com.mycompany.kinship.database.Conexao;
 import com.mycompany.kinship.models.Comentario;
@@ -10,7 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
 
 public class ComentarioDAO {
 
@@ -168,5 +171,53 @@ public class ComentarioDAO {
         comentario.setTotalCurtidas(resultado.getInt("total_curtidas"));
 
         return comentario;
+    }
+    
+    public Map<Integer, Comentario> buscarDestaquePorPosts(List<Integer> codigosPost)
+        throws SQLException {
+
+        Map<Integer, Comentario> destaques = new HashMap<>();
+        if (codigosPost.isEmpty()) {
+            return destaques;
+        }
+
+        String marcadores = String.join(",", Collections.nCopies(codigosPost.size(), "?"));
+        String sql = """
+                WITH base AS (
+                    SELECT c.codigo, c.texto, c.data_hora, c.codigo_post, c.codigo_usuario,
+                           u.nome AS autor_nome, u.foto_perfil AS autor_foto,
+                           (SELECT COUNT(*) FROM dbo.curtida_comentario cc
+                            WHERE cc.codigo_comentario = c.codigo) AS total_curtidas
+                    FROM dbo.comentario c
+                    INNER JOIN dbo.usuario u ON u.codigo = c.codigo_usuario
+                    WHERE c.codigo_post IN (%s)
+                ),
+                ranqueado AS (
+                    SELECT *, ROW_NUMBER() OVER (
+                        PARTITION BY codigo_post
+                        ORDER BY total_curtidas DESC, codigo ASC) AS posicao
+                    FROM base
+                )
+                SELECT codigo, texto, data_hora, codigo_post, codigo_usuario,
+                       autor_nome, autor_foto, total_curtidas
+                FROM ranqueado
+                WHERE posicao = 1
+                """.formatted(marcadores);
+
+        try (Connection conexao = Conexao.conectar();
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            for (int i = 0; i < codigosPost.size(); i++) {
+                comando.setInt(i + 1, codigosPost.get(i));
+            }
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                while (resultado.next()) {
+                    Comentario c = mapearComentario(resultado);
+                    destaques.put(c.getCodigoPost(), c);
+                }
+            }
+        }
+        return destaques;
     }
 }
