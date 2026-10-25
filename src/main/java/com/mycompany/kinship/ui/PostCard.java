@@ -15,8 +15,9 @@ import javax.swing.SwingConstants;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
-public class PostCard extends JPanel {
+public class PostCard extends PainelArredondado {
 
     private static final Color TEXTO_SUAVE = new Color(150, 150, 150);
     private static final int LARGURA_TEXTO = 400;
@@ -29,10 +30,12 @@ public class PostCard extends JPanel {
     private final int codigoPost;
     private final JLabel lblCurtidas = new JLabel();
     private boolean ocupado = false;
+    
+    private final JLabel lblComentarios = new JLabel();
 
     public PostCard(int codigoPost, String autor, String tempo, String texto,
                 int curtidas, int comentarios, String comentarioDestaque,
-                boolean curtido, AoCurtir aoCurtir) 
+                boolean curtido, Acoes acoes) 
     {
         this.codigoPost = codigoPost;
         setLayout(new BorderLayout(0, 10));
@@ -42,12 +45,31 @@ public class PostCard extends JPanel {
 
         add(criarTopo(autor, tempo), BorderLayout.NORTH);
         add(criarTexto(texto), BorderLayout.CENTER);
-        add(criarRodape(curtidas, comentarios, comentarioDestaque, curtido, aoCurtir), BorderLayout.SOUTH);
+        add(criarRodape(curtidas, comentarios, comentarioDestaque, curtido, acoes), BorderLayout.SOUTH);
     }
 
-    public interface AoCurtir {
-        void clicou(PostCard card);
+    private JLabel criarComentarios(int total, Acoes acoes) {
+        lblComentarios.setIcon(ICONE_COMENTAR);
+        lblComentarios.setIconTextGap(6);
+        lblComentarios.setForeground(Tema.TEXTO_SUAVE);
+        lblComentarios.setText(String.valueOf(total));
+        lblComentarios.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        lblComentarios.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (acoes != null && acoes.comentar() != null) {
+                    acoes.comentar().accept(PostCard.this);
+                }
+            }
+        });
+        return lblComentarios;
     }
+
+    public void atualizarComentarios(int total) {
+        lblComentarios.setText(String.valueOf(total));
+    }
+
+    public record Acoes(Consumer<PostCard> curtir, Consumer<PostCard> comentar) {}
     
     private static ImageIcon carregarIcone(String caminho) {
         Image img = new ImageIcon(PostCard.class.getResource(caminho))
@@ -58,9 +80,9 @@ public class PostCard extends JPanel {
     private JPanel criarTopo(String autor, String tempo) {
         JPanel topo = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         topo.setOpaque(false);
-        JPanel avatar = new JPanel();
-        avatar.setPreferredSize(new Dimension(36, 36));
-        avatar.setBackground(new Color(255, 203, 153));
+        
+        AvatarCircular avatar = new AvatarCircular(36, autor);
+        
         JLabel lblTempo = new JLabel(tempo);
         lblTempo.setForeground(TEXTO_SUAVE);
         topo.add(avatar);
@@ -79,7 +101,7 @@ public class PostCard extends JPanel {
     }
 
     private JPanel criarRodape(int curtidas, int comentarios, String destaque,
-                           boolean curtido, AoCurtir aoCurtir) 
+                           boolean curtido, Acoes acoes) 
     {
         JPanel rodape = new JPanel();
         rodape.setLayout(new BoxLayout(rodape, BoxLayout.Y_AXIS));
@@ -87,8 +109,8 @@ public class PostCard extends JPanel {
 
         JPanel linha = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
         linha.setOpaque(false);
-        linha.add(contador(ICONE_COMENTAR, comentarios));
-        linha.add(criarCurtidas(curtidas, curtido, aoCurtir));
+        linha.add(criarComentarios(comentarios, acoes));
+        linha.add(criarCurtidas(curtidas, curtido, acoes));
         rodape.add(linha);
 
         if (destaque != null) {
@@ -107,14 +129,14 @@ public class PostCard extends JPanel {
         return lbl;
     }
     
-    private JLabel criarCurtidas(int total, boolean curtido, AoCurtir aoCurtir) {
+    private JLabel criarCurtidas(int total, boolean curtido, Acoes acoes) {
         lblCurtidas.setIconTextGap(6);
         lblCurtidas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         lblCurtidas.addMouseListener(new MouseAdapter() {
-            @Override
+        @Override
             public void mouseClicked(MouseEvent e) {
-                if (aoCurtir != null && !ocupado) {
-                    aoCurtir.clicou(PostCard.this);
+                if (acoes != null && acoes.curtir() != null && !ocupado) {
+                    acoes.curtir().accept(PostCard.this);
                 }
             }
         });

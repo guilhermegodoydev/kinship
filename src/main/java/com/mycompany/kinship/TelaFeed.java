@@ -17,11 +17,18 @@ import com.mycompany.kinship.models.Comentario;
 import com.mycompany.kinship.daos.ComentarioDAO;
 import com.mycompany.kinship.ui.Formatacao;
 import com.mycompany.kinship.algoritmos.Algoritmo;
+import com.mycompany.kinship.services.ComentarioService;
 import com.mycompany.kinship.services.Criterio;
 import com.mycompany.kinship.services.CurtidaService;
 import com.mycompany.kinship.services.FeedService;
 import com.mycompany.kinship.services.ResultadoOrdenacao;
 import com.mycompany.kinship.services.Sessao;
+import com.mycompany.kinship.services.ValidacaoException;
+import com.mycompany.kinship.ui.ComentarioItem;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.util.Locale;
 import javax.swing.Box;
 import java.text.NumberFormat;
@@ -30,9 +37,14 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.util.stream.Collectors;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
-
+import java.awt.Container;
+import java.awt.Dimension;
+import javax.swing.JTextField;
 
 public class TelaFeed extends javax.swing.JFrame {
     
@@ -53,10 +65,21 @@ public class TelaFeed extends javax.swing.JFrame {
     private final CurtidaService curtidaService = new CurtidaService();
     private Map<Integer, Post> postsPorCodigo = Map.of();
     private record DadosPagina(Map<Integer, Comentario> destaques, Set<Integer> curtidos) {}
+    private final ComentarioService comentarioService = new ComentarioService();
+    private final PostCard.Acoes acoesDosCards = new PostCard.Acoes(this::aoClicarEmCurtir, this::aoClicarEmComentar);
+    private JPanel painelComentarios;
+    private Post postAberto = null;
+    private PostCard cardAberto = null;
+    private int deslocamentoComentarios = 0;
+    private boolean carregandoComentarios = false;
+    private boolean temMaisComentarios = false;
+    private int geracaoComentarios = 0;
+    private static final int LARGURA_MENU_COMENTARIOS = 340;
     
     public TelaFeed() {
         initComponents();
         configurarFeed();
+        configurarComentarios();
         configurarSelecao();
         carregarFeed();
     }
@@ -237,7 +260,7 @@ public class TelaFeed extends javax.swing.JFrame {
                             p.getTotalComentarios(),
                             Formatacao.resumoComentario(dados.destaques().get(p.getCodigo())),
                             dados.curtidos().contains(p.getCodigo()),
-                            TelaFeed.this::aoClicarEmCurtir));
+                            acoesDosCards));
                     painelPosts.add(Box.createVerticalStrut(12));
                 }
                 
@@ -264,6 +287,266 @@ public class TelaFeed extends javax.swing.JFrame {
                         carregarProximaPagina();
                     }
                 });
+            }
+        }.execute();
+    }
+    
+    private void configurarComentarios() {
+        Color fundo = Tema.FUNDO;
+
+        Dimension atual = containerPainelComentarios.getPreferredSize();
+        containerPainelComentarios.setPreferredSize(new Dimension(LARGURA_MENU_COMENTARIOS, atual.height));
+        containerPainelComentarios.setMinimumSize(new Dimension(LARGURA_MENU_COMENTARIOS, 0));
+        containerPainelComentarios.setMaximumSize(new Dimension(LARGURA_MENU_COMENTARIOS, Integer.MAX_VALUE));
+        
+        painelComentarios = new JPanel();
+        painelComentarios.setLayout(new BoxLayout(painelComentarios, BoxLayout.Y_AXIS));
+        painelComentarios.setBackground(fundo);
+        painelComentarios.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+
+        scrollComentarios.setViewportView(painelComentarios);
+        scrollComentarios.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollComentarios.setBorder(null);
+        scrollComentarios.getViewport().setOpaque(true);
+        scrollComentarios.getViewport().setBackground(fundo);
+
+        JScrollBar barra = scrollComentarios.getVerticalScrollBar();
+        barra.setUnitIncrement(16);
+        barra.addAdjustmentListener(e -> {
+            if (barra.getValue() + barra.getVisibleAmount() >= barra.getMaximum() - 80) {
+                carregarProximosComentarios();
+            }
+        });
+
+        lblErroComentario.setForeground(new Color(192, 57, 43));
+        lblErroComentario.setFont(lblErroComentario.getFont().deriveFont(Font.BOLD, 12f));
+        lblErroComentario.setText(" ");
+
+        btnEnviarComentario.addActionListener(e -> enviarComentario());
+        txtComentario.addActionListener(e -> enviarComentario());
+
+        mostrarSemSelecao();
+        scrollComentarios.setPreferredSize(new Dimension(340, 300));
+        
+        JPanel linhaCampo = new JPanel(new BorderLayout(8, 0));
+        linhaCampo.setOpaque(false);
+        linhaCampo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        linhaCampo.add(txtComentario, BorderLayout.CENTER);
+        linhaCampo.add(btnEnviarComentario, BorderLayout.EAST);
+        txtComentario.setHorizontalAlignment(JTextField.LEFT);
+
+        painelRodapeComentarios.removeAll();
+        painelRodapeComentarios.setLayout(new BoxLayout(painelRodapeComentarios, BoxLayout.Y_AXIS));
+        lblErroComentario.setAlignmentX(Component.LEFT_ALIGNMENT);
+        painelRodapeComentarios.add(linhaCampo);
+        painelRodapeComentarios.add(lblErroComentario);
+
+        linhaCampo.setMaximumSize(new Dimension(Integer.MAX_VALUE, linhaCampo.getPreferredSize().height));
+    }
+    
+    private void mostrarErroComentario(String mensagem) {
+        lblErroComentario.setText(mensagem == null || mensagem.isBlank()
+                ? " "
+                : Formatacao.textoQuebrado(mensagem, LARGURA_MENU_COMENTARIOS - 32));
+    }
+
+    private void atualizarMenuLateral() {
+        Container pai = containerScroll.getParent();
+        if (pai != null) {
+            pai.revalidate();
+            pai.repaint();
+        }
+    }
+
+    private void mostrarSemSelecao() {
+        geracaoComentarios++;
+        carregandoComentarios = false;
+        postAberto = null;
+        cardAberto = null;
+
+        lblNomePost.setText("Nenhum post selecionado");
+        lblDescricaoPost.setVisible(false);
+        containerScroll.setVisible(false);
+        painelRodapeComentarios.setVisible(false);
+        atualizarMenuLateral();
+    }
+
+    private void aoClicarEmComentar(PostCard card) {
+        Post post = postsPorCodigo.get(card.getCodigoPost());
+        if (post == null) return;
+
+        cardAberto = card;
+
+        if (postAberto == post) {
+            txtComentario.requestFocusInWindow();
+            return;
+        }
+
+        postAberto = post;
+        lblNomePost.setText("Comentários");
+        lblDescricaoPost.setText(Formatacao.textoQuebrado(
+            "Post de " + post.getAutorNome() + ": " + Formatacao.resumir(post.getConteudo(), 70),
+            LARGURA_MENU_COMENTARIOS - 32));
+        lblDescricaoPost.setVisible(true);
+        containerScroll.setVisible(true);
+        painelRodapeComentarios.setVisible(true);
+        lblErroComentario.setText(" ");
+        txtComentario.setText("");
+        atualizarMenuLateral();
+
+        recarregarComentarios();
+        txtComentario.requestFocusInWindow();
+    }
+
+    private void recarregarComentarios() {
+        geracaoComentarios++;
+        carregandoComentarios = false;
+        deslocamentoComentarios = 0;
+        temMaisComentarios = true;
+        painelComentarios.removeAll();
+        painelComentarios.revalidate();
+        painelComentarios.repaint();
+        scrollComentarios.getVerticalScrollBar().setValue(0);
+        carregarProximosComentarios();
+    }
+
+    private void carregarProximosComentarios() {
+        if (postAberto == null || carregandoComentarios || !temMaisComentarios) return;
+        carregandoComentarios = true;
+
+        final int geracao = geracaoComentarios;
+        final int codigoPost = postAberto.getCodigo();
+        final int deslocamento = deslocamentoComentarios;
+        final int usuario = codigoUsuarioLogado();
+
+        new SwingWorker<ComentarioService.Pagina, Void>() {
+            @Override
+            protected ComentarioService.Pagina doInBackground() {
+                return comentarioService.listarPagina(codigoPost, usuario, deslocamento);
+            }
+
+            @Override
+            protected void done() {
+                if (geracao != geracaoComentarios) return;
+
+                try {
+                    ComentarioService.Pagina pagina = get();
+
+                    for (Comentario c : pagina.itens()) {
+                        painelComentarios.add(new ComentarioItem(
+                                c.getCodigo(),
+                                c.getAutorNickname(),
+                                Formatacao.tempoRelativo(c.getDataHora()),
+                                c.getTexto(),
+                                c.getTotalCurtidas(),
+                                pagina.curtidos().contains(c.getCodigo()),
+                                TelaFeed.this::aoClicarEmCurtirComentario));
+                        painelComentarios.add(Box.createVerticalStrut(8));
+                    }
+                    deslocamentoComentarios += pagina.itens().size();
+                    temMaisComentarios = pagina.temMais();
+
+                    if (deslocamentoComentarios == 0) {
+                        JLabel vazio = new JLabel("Sem comentários ainda. Seja o primeiro!");
+                        vazio.setForeground(Tema.TEXTO_SUAVE);
+                        vazio.setAlignmentX(Component.LEFT_ALIGNMENT);
+                        vazio.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 0));
+                        painelComentarios.add(vazio);
+                    }
+
+                    painelComentarios.revalidate();
+                    painelComentarios.repaint();
+
+                    SwingUtilities.invokeLater(() -> {
+                        carregandoComentarios = false;
+                        JViewport vp = scrollComentarios.getViewport();
+                        if (temMaisComentarios && vp.getViewSize().height <= vp.getHeight()) {
+                            carregarProximosComentarios();
+                        }
+                    });
+                } catch (InterruptedException | ExecutionException ex) {
+                    ex.printStackTrace();
+                    carregandoComentarios = false;
+                }
+            }
+        }.execute();
+    }
+
+    private void enviarComentario() {
+        if (postAberto == null) return;
+
+        final Post post = postAberto;
+        final PostCard card = cardAberto;
+        final int usuario = codigoUsuarioLogado();
+        final String texto = txtComentario.getText();
+
+        mostrarErroComentario("...");
+        if (usuario == 0) {
+            mostrarErroComentario("Faça login para comentar");
+            return;
+        }
+
+        btnEnviarComentario.setEnabled(false);
+
+        new SwingWorker<Comentario, Void>() {
+            @Override
+            protected Comentario doInBackground() throws Exception {
+                return comentarioService.comentar(post.getCodigo(), usuario, texto);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    get();
+                    txtComentario.setText("");
+                    post.setTotalComentarios(post.getTotalComentarios() + 1);
+                    if (card != null) {
+                        card.atualizarComentarios(post.getTotalComentarios());
+                    }
+                    if (postAberto == post) {
+                        recarregarComentarios();   // o novo comentário aparece no topo
+                    }
+                } catch (ExecutionException ex) {
+                    if (ex.getCause() instanceof ValidacaoException ve) {
+                        mostrarErroComentario("Comentário inválido");
+                    } else {
+                        ex.printStackTrace();
+                        mostrarErroComentario("Não foi possível enviar. Tente novamente.");
+                    }
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    btnEnviarComentario.setEnabled(true);
+                }
+            }
+        }.execute();
+    }
+
+    private void aoClicarEmCurtirComentario(ComentarioItem item) {
+        int usuario = codigoUsuarioLogado();
+        if (usuario == 0) return;
+
+        item.definirOcupado(true);
+
+        new SwingWorker<CurtidaService.Resultado, Void>() {
+            @Override
+            protected CurtidaService.Resultado doInBackground() {
+                return curtidaService.alternarComentario(item.getCodigoComentario(), usuario);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    CurtidaService.Resultado r = get();
+                    item.atualizarCurtida(r.curtido(), r.total());
+                } catch (InterruptedException | ExecutionException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(TelaFeed.this,
+                            "Não foi possível curtir o comentário. Tente novamente.",
+                            "Erro", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    item.definirOcupado(false);
+                }
             }
         }.execute();
     }
@@ -309,6 +592,7 @@ public class TelaFeed extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         btnGrupoFiltros = new javax.swing.ButtonGroup();
         btnGrupoAlgoritmos = new javax.swing.ButtonGroup();
@@ -351,17 +635,28 @@ public class TelaFeed extends javax.swing.JFrame {
         lblOrdenando = new javax.swing.JLabel();
         scrollPostagens = new javax.swing.JScrollPane();
         painelPosts = new javax.swing.JPanel();
+        containerPainelComentarios = new javax.swing.JPanel();
+        painelComentario = new javax.swing.JPanel();
+        lblNomePost = new javax.swing.JLabel();
+        lblDescricaoPost = new javax.swing.JLabel();
+        jSeparator3 = new javax.swing.JSeparator();
+        containerScroll = new javax.swing.JPanel();
+        scrollComentarios = new javax.swing.JScrollPane();
+        painelRodapeComentarios = new javax.swing.JPanel();
+        txtComentario = new javax.swing.JTextField();
+        lblErroComentario = new javax.swing.JLabel();
+        btnEnviarComentario = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kinship - Feed");
         setExtendedState(6);
         setMinimumSize(new java.awt.Dimension(700, 530));
-        setPreferredSize(new java.awt.Dimension(700, 530));
         setSize(new java.awt.Dimension(700, 530));
 
         jPanel1.setBackground(Tema.FUNDO);
         jPanel1.setForeground(new java.awt.Color(204, 204, 204));
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
         panelHeader.setBackground(new java.awt.Color(255, 204, 153));
 
@@ -437,7 +732,13 @@ public class TelaFeed extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel1.add(panelHeader, java.awt.BorderLayout.NORTH);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel1.add(panelHeader, gridBagConstraints);
 
         panelContainerMenuLateral.setOpaque(false);
         panelContainerMenuLateral.setPreferredSize(new java.awt.Dimension(150, 338));
@@ -527,12 +828,20 @@ public class TelaFeed extends javax.swing.JFrame {
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
         panelContainerMenuLateral.add(jSeparator1, java.awt.BorderLayout.EAST);
 
-        jPanel1.add(panelContainerMenuLateral, java.awt.BorderLayout.WEST);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        jPanel1.add(panelContainerMenuLateral, gridBagConstraints);
 
         jPanel2.setOpaque(false);
-        jPanel2.setLayout(new java.awt.BorderLayout());
+        jPanel2.setLayout(new java.awt.BorderLayout(10, 0));
 
-        lblOrdenando.setText("Ordenado");
+        lblOrdenando.setForeground(Tema.TEXTO);
+        lblOrdenando.setText("50 posts ordenados por mais curtidos");
+        lblOrdenando.setToolTipText("");
         jPanel2.add(lblOrdenando, java.awt.BorderLayout.NORTH);
 
         scrollPostagens.setBackground(Tema.FUNDO);
@@ -551,13 +860,83 @@ public class TelaFeed extends javax.swing.JFrame {
 
         jPanel2.add(scrollPostagens, java.awt.BorderLayout.CENTER);
 
-        jPanel1.add(jPanel2, java.awt.BorderLayout.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        jPanel1.add(jPanel2, gridBagConstraints);
+
+        containerPainelComentarios.setOpaque(false);
+        containerPainelComentarios.setLayout(new java.awt.BorderLayout());
+
+        painelComentario.setOpaque(false);
+        painelComentario.setLayout(new javax.swing.BoxLayout(painelComentario, javax.swing.BoxLayout.Y_AXIS));
+
+        lblNomePost.setText("Nome do post");
+        painelComentario.add(lblNomePost);
+
+        lblDescricaoPost.setText("Descricao");
+        painelComentario.add(lblDescricaoPost);
+        painelComentario.add(jSeparator3);
+
+        containerScroll.setOpaque(false);
+        containerScroll.setPreferredSize(new java.awt.Dimension(340, 386));
+
+        scrollComentarios.setOpaque(false);
+
+        javax.swing.GroupLayout containerScrollLayout = new javax.swing.GroupLayout(containerScroll);
+        containerScroll.setLayout(containerScrollLayout);
+        containerScrollLayout.setHorizontalGroup(
+            containerScrollLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(scrollComentarios, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
+        );
+        containerScrollLayout.setVerticalGroup(
+            containerScrollLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(scrollComentarios, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
+        );
+
+        painelComentario.add(containerScroll);
+
+        painelRodapeComentarios.setOpaque(false);
+        painelRodapeComentarios.setLayout(new javax.swing.BoxLayout(painelRodapeComentarios, javax.swing.BoxLayout.Y_AXIS));
+
+        txtComentario.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        txtComentario.setToolTipText("");
+        txtComentario.addActionListener(this::txtComentarioActionPerformed);
+        painelRodapeComentarios.add(txtComentario);
+
+        lblErroComentario.setPreferredSize(new java.awt.Dimension(71, 16));
+        painelRodapeComentarios.add(lblErroComentario);
+
+        btnEnviarComentario.setText("Publicar");
+        btnEnviarComentario.setPreferredSize(new java.awt.Dimension(71, 23));
+        painelRodapeComentarios.add(btnEnviarComentario);
+
+        painelComentario.add(painelRodapeComentarios);
+
+        containerPainelComentarios.add(painelComentario, java.awt.BorderLayout.CENTER);
+
+        jSeparator2.setForeground(new java.awt.Color(153, 153, 153));
+        jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        containerPainelComentarios.add(jSeparator2, java.awt.BorderLayout.WEST);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        jPanel1.add(containerPainelComentarios, gridBagConstraints);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -586,6 +965,10 @@ public class TelaFeed extends javax.swing.JFrame {
        this.dispose();
     }//GEN-LAST:event_lblBenchmarkMouseClicked
 
+    private void txtComentarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtComentarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtComentarioActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -612,8 +995,11 @@ public class TelaFeed extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnEnviarComentario;
     private javax.swing.ButtonGroup btnGrupoAlgoritmos;
     private javax.swing.ButtonGroup btnGrupoFiltros;
+    private javax.swing.JPanel containerPainelComentarios;
+    private javax.swing.JPanel containerScroll;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
@@ -630,20 +1016,28 @@ public class TelaFeed extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
     private javax.swing.JLabel lblBenchmark;
     private javax.swing.JLabel lblComparacoes;
+    private javax.swing.JLabel lblDescricaoPost;
+    private javax.swing.JLabel lblErroComentario;
+    private javax.swing.JLabel lblNomePost;
     private javax.swing.JLabel lblOrdenando;
     private javax.swing.JLabel lblPerfil;
     private javax.swing.JLabel lblSair;
     private javax.swing.JLabel lblTempo;
     private javax.swing.JLabel lblTrocas;
+    private javax.swing.JPanel painelComentario;
     private javax.swing.JPanel painelPosts;
+    private javax.swing.JPanel painelRodapeComentarios;
     private javax.swing.JPanel panelBotoesAlgoritmos;
     private javax.swing.JPanel panelBotoesOrdenar;
     private javax.swing.JPanel panelContainerMenuLateral;
     private javax.swing.JPanel panelHeader;
     private javax.swing.JPanel panelLabelsResultados;
     private javax.swing.JPanel panelMenuLateral;
+    private javax.swing.JScrollPane scrollComentarios;
     private javax.swing.JScrollPane scrollPostagens;
     private javax.swing.JToggleButton toggleBubbleSort;
     private javax.swing.JToggleButton toggleInsertionSort;
@@ -652,5 +1046,6 @@ public class TelaFeed extends javax.swing.JFrame {
     private javax.swing.JToggleButton toggleMergeSort;
     private javax.swing.JToggleButton toggleQuickSort;
     private javax.swing.JToggleButton toggleRecentes;
+    private javax.swing.JTextField txtComentario;
     // End of variables declaration//GEN-END:variables
 }

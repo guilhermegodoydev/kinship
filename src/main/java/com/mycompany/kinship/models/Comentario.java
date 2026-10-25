@@ -14,6 +14,8 @@ public class Comentario {
     private String autorNome;
     private String autorFoto;
 
+    private String autorNickname;
+    
     public Comentario(String texto, int codigoPost, int codigoUsuario) {
         this(null, texto, LocalDateTime.now(), codigoPost, codigoUsuario);
     }
@@ -29,6 +31,16 @@ public class Comentario {
         this.codigoUsuario = Validacao.idPositivo(codigoUsuario, "Autor");
     }
 
+    public void definirAutor(String nome, String nickname, String foto) {
+        this.autorNome = nome;
+        this.autorNickname = nickname;
+        this.autorFoto = foto;
+    }
+
+    public String getAutorNickname() {
+        return autorNickname;
+    }
+    
     public void editarTexto(String novoTexto) {
         this.texto = Validacao.obrigatorio(novoTexto, "Comentário", 500);
     }

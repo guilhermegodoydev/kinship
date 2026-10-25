@@ -1,5 +1,6 @@
 package com.mycompany.kinship.services;
 
+import com.mycompany.kinship.daos.CurtidaComentarioDAO;
 import com.mycompany.kinship.daos.CurtidaPostDAO;
 
 import java.sql.SQLException;
@@ -11,6 +12,7 @@ public class CurtidaService {
     public record Resultado(boolean curtido, int total) {}
 
     private final CurtidaPostDAO dao = new CurtidaPostDAO();
+    private final CurtidaComentarioDAO comentarioDAO = new CurtidaComentarioDAO();
 
     public Resultado alternar(int codigoPost, int codigoUsuario) {
         try {
@@ -18,6 +20,15 @@ public class CurtidaService {
             return new Resultado(curtido, dao.contar(codigoPost));
         } catch (SQLException e) {
             throw new ErroDeAcessoException("Falha ao curtir o post.", e);
+        }
+    }
+    
+    public Resultado alternarComentario(int codigoComentario, int codigoUsuario) {
+        try {
+            boolean curtido = comentarioDAO.alternar(codigoComentario, codigoUsuario);
+            return new Resultado(curtido, comentarioDAO.contar(codigoComentario));
+        } catch (SQLException e) {
+            throw new ErroDeAcessoException("Falha ao curtir o comentário.", e);
         }
     }
 

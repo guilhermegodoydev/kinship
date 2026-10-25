@@ -25,6 +25,7 @@ public class ComentarioDAO {
                 c.codigo_post,
                 c.codigo_usuario,
                 u.nome AS autor_nome,
+                u.nickname AS autor_nickname,
                 u.foto_perfil AS autor_foto,
                 (SELECT COUNT(*)
                  FROM dbo.curtida_comentario cc
@@ -166,6 +167,7 @@ public class ComentarioDAO {
 
         comentario.definirAutor(
                 resultado.getString("autor_nome"),
+                resultado.getString("autor_nickname"),
                 resultado.getString("autor_foto")
         );
         comentario.setTotalCurtidas(resultado.getInt("total_curtidas"));
@@ -185,7 +187,7 @@ public class ComentarioDAO {
         String sql = """
                 WITH base AS (
                     SELECT c.codigo, c.texto, c.data_hora, c.codigo_post, c.codigo_usuario,
-                           u.nome AS autor_nome, u.foto_perfil AS autor_foto,
+                           u.nome AS autor_nome, u.nickname AS autor_nickname, u.foto_perfil AS autor_foto,
                            (SELECT COUNT(*) FROM dbo.curtida_comentario cc
                             WHERE cc.codigo_comentario = c.codigo) AS total_curtidas
                     FROM dbo.comentario c
@@ -199,7 +201,7 @@ public class ComentarioDAO {
                     FROM base
                 )
                 SELECT codigo, texto, data_hora, codigo_post, codigo_usuario,
-                       autor_nome, autor_foto, total_curtidas
+                       autor_nome, autor_nickname, autor_foto, total_curtidas
                 FROM ranqueado
                 WHERE posicao = 1
                 """.formatted(marcadores);
@@ -219,5 +221,29 @@ public class ComentarioDAO {
             }
         }
         return destaques;
+    }
+    
+    public List<Comentario> listarPagina(int codigoPost, int deslocamento, int limite) throws SQLException {
+        String sql = CONSULTA_COMENTARIOS
+                + " WHERE c.codigo_post = ?"
+                + " ORDER BY c.data_hora DESC, c.codigo DESC"
+                + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<Comentario> comentarios = new ArrayList<>();
+
+        try (Connection conexao = Conexao.conectar();
+             PreparedStatement comando = conexao.prepareStatement(sql)) {
+
+            comando.setInt(1, codigoPost);
+            comando.setInt(2, deslocamento);
+            comando.setInt(3, limite);
+
+            try (ResultSet resultado = comando.executeQuery()) {
+                while (resultado.next()) {
+                    comentarios.add(mapearComentario(resultado));
+                }
+            }
+        }
+        return comentarios; 
     }
 }

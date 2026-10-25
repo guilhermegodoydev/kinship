@@ -27,4 +27,15 @@ public final class Formatacao {
         return c.getAutorNome() + ": \"" + texto + "\" (" + n
                 + (n == 1 ? " curtida)" : " curtidas)");
     }
+    
+    public static String textoQuebrado(String texto, int largura) {
+        String seguro = texto.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\n", "<br>");
+        return "<html><body style='width:" + largura + "px'>" + seguro + "</body></html>";
+    }
+
+    public static String resumir(String texto, int max) {
+        String linha = texto.replace('\n', ' ').trim();
+        return linha.length() > max ? linha.substring(0, max - 3) + "..." : linha;
+    }
 }
